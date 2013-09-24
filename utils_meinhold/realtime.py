@@ -59,6 +59,11 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False):
     daz=np.diff(azmeans)
     
     badaz=np.unique(np.where(np.logical_and((np.abs(daz) > 5.) , (np.abs(daz+359.5) > 5.)))[0])
+    if (badaz[-1]-len(daz) < 3):
+        badaz=badaz[:-1]
+    if (badaz[0] < 3):
+        badaz=badaz[1:]
+    
     azmeans[badaz]=(azmeans[badaz-2]+azmeans[badaz+2])/2.0
     azmeans=np.mod(azmeans,360.)
     return {'el':elmeans,'az':azmeans,'rev':hrevlist}
@@ -168,7 +173,7 @@ def psmapcurrent(cdata,chan='ch2',cmode='T',nbins=360):
     pcolormesh(psmap.T)
     return psmap
     
-def getdatanow(yrmoday,fpath=''):
+def getdatanow(yrmoday,fpath='',combined=True):
     """
     function to automatically read all science files and pointing
     files, save for future use, also save last h5 and .dat filenamesc
@@ -183,7 +188,15 @@ def getdatanow(yrmoday,fpath=''):
     pp=get_h5_pointing(flp)
     dd=get_demodulated_data_from_list(fld)
     curr_data={'pp':pp,'dd':dd,'lastpfile':flp[-1],'lastdfile':fld[-1],'yrmoday':yrmoday,'fpath':fpath}
-    combined=combine_cofe_h5_pointing(curr_data['dd'],curr_data['pp'],outfile='combined_data'+yrmoday+'.pkl')
+    if combined:
+        curr_data=combine_cofe_h5_pointing(curr_data['dd'],curr_data['pp'],outfile='combined_data'+yrmoday+'.pkl')
+    return curr_data
+    
+def combine_cdata(curr_data):
+    """
+    convenience function to use curr_data info to get combined data
+    """
+    combined=combine_cofe_h5_pointing(curr_data['dd'],curr_data['pp'],outfile='combined_data'+curr_data['yrmoday']+'.pkl')
     return combined
 
 def updatedata(cdata):
@@ -210,4 +223,4 @@ def updatedata(cdata):
         cdata['pp']['el']=np.concatenate([cdata['pp']['el'],pp['el']])
         cdata['pp']['rev']=np.concatenate([cdata['pp']['rev'],pp['rev']])
         cdata['lastpfile']=flp[-1]
-    return 
+    return cdata
