@@ -3,7 +3,7 @@
 import numpy as np
 import pyfits as pyfits
 import ephem 
-import peakanalysis as pk
+#import peakanalysis as pk
 import matplotlib.pyplot as plt
 from glob import glob
 from scipy.signal import butter,filtfilt,iirdesign
