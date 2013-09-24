@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from matplotlib import mlab
 import time
 import os
-import mpfit as mp
+
 
 rtd=180/np.pi
 
@@ -310,6 +310,7 @@ def get_cofe_target(ut,lat,lon,target):
     return np.array(az),np.array(el)
     
 def get_cofe_crossing(ut,toi,gaz,lat,lon,centerut,target,plot=False):
+    import peakanalysis as pk
     #function to find maximum peak signal crossing
     #in toi, return azoffset, elevation at crossing
     t=np.where(abs(ut-centerut) < .3/60.)
@@ -448,6 +449,7 @@ def gaussianresid(p, fjac=None, x=None, y=None, err=None):
     
     
 def fit_gaussian(x,y,yerr=None):
+    import mpfit as mp
     if yerr==None:
         yerr=np.std(y)
     err=yerr*np.ones(x.size,dtype=float)
