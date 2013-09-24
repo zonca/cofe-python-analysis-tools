@@ -1,119 +1,16 @@
-# These funtions read Jean-Luc's old trace data from fits files,
+
 # find peaks, generate histograms and plot  histograms
 
-from GUI.FileDialogs import *
 import pyfits
 import numpy as np
-import UniversalLibrary as ul
 import mpfit as mp
 import matplotlib.pyplot as plt
 import scipy.io
 import time
 import gc
-from Tkinter import *
-import tkFileDialog
 
 caprange=np.arange(1,100000)-50000
 sigma_cutoff=600  # ignore peaks this wide
-
-def thicklegendlines(legendname,thick=3):
-    lglines=legendname.get_lines()
-    for line in lglines:
-        line.set_linewidth(thick)
-    plt.draw()
-
-
-def check_stats_mc(pkpos,pkheights,pksigmas,pksnas,diffchis,minwidth=1,maxwidth=8,minsna=2,mindiffchis=.2):
-    #function to match fitted peak positions to input montecarlo. Assume peaks at 10000, 12000 and 
-    #every 10000 after that.
-    #returns two lists of positions for good 'bigs' and good 'smalls'
-    #first make the blind cuts:
-    nfiltered=0;nfiltered_dups=0;nbig=00;nsmall=0
-    g=np.where((pksnas>minsna) & (diffchis > mindiffchis)&(pksigmas<maxwidth)&(pksigmas>minwidth))
-    test=pkpos[g[0]]
-    nfiltered=len(test)
-    if nfiltered>2:
-        diff_filtered=test-np.roll(test,1)
-        testfiltered=test[np.abs(diff_filtered)>maxwidth]
-        nfiltered_dups=len(testfiltered)
-        if nfiltered_dups>0:
-            #now check in these blind filtered data for which ones line up on MC input particles
-            testres=np.remainder(test+1000,10000)
-            ggbig=np.where(np.abs(testres-1000)<maxwidth)
-            ggsmall=np.where(np.abs(testres-3000)<maxwidth)
-            #remove duplicates- use dumb idea of just keeping first point meeting peak criteria
-            testbig=test[ggbig[0]]
-            testsmall=test[ggsmall[0]]
-            if len(testbig) >1:
-                diffsbig=testbig-np.roll(testbig,1)
-                if len(testsmall)>1:
-                    testbig=testbig[np.abs(diffsbig)>maxwidth]
-                    diffssmall=testsmall-np.roll(testsmall,1)
-                    testsmall=testsmall[np.abs(diffssmall)>maxwidth]
-                    nsmall=len(testsmall)
-                    nbig=len(testbig)
-    
-    return nfiltered,nfiltered_dups,nbig,nsmall
-    
-
-def get_old_data():
-    infileref=request_old_files(prompt='Choose a fits TOD file')
-    datad={}
-    data_arrays=np.zeros(0)
-    vlowarray=[]
-    vhiarray=[]
-    gainarray=[]
-    for fileref in infileref:
-        filename=fileref.path
-        hdulist=pyfits.open(filename)
-        gain=hdulist[1].header['gain']
-        v_high=hdulist[1].header['v_high']
-        v_low=hdulist[1].header['v_low']
-        n_samp=hdulist[1].header['n_samp']
-        vlowarray.append(v_low)
-        vhiarray.append(v_high)
-        gainarray.append(gain)
-        #period=hdulist[1].header['period']
-        data_array=hdulist[1].data.field('samples')
-        data_array*=(data_array/(v_high - v_low))/gain
-        data_arrays=np.concatenate((data_arrays,data_array),axis=0)
-    samplerate=1000000
-    if 'samplerate' in hdulist[1].header.keys():
-        samplerate=hdulist[1].header['samplerate']
-    datad['samplerate']=samplerate
-    datad['data']=data_arrays
-    datad['gain']=np.array(gainarray)
-    datad['v_low']=np.array(vlowarray)
-    datad['v_hi']=np.array(vhiarray)
-    return datad
-    
-def read_matfile(infiles=None):
-    """function to read in andrew's matlab files"""
-    master=Tk()
-    master.withdraw()
-    if infiles==None:
-        infiles=tkFileDialog.askopenfilenames(title='Choose one or more matlab TOD file',initialdir='c:/ANC/data/matlab_data/')
-        infiles=master.tk.splitlist(infiles)
-    data_arrays=np.zeros(0)
-    datad={}
-    vlowarray=[]
-    vhiarray=[]
-    gainarray=[]
-    for filename in infiles:
-        #print filename
-        mat=scipy.io.loadmat(filename)
-        toi=-mat['out']['V1'][0][0][0]/(mat['out']['Vb'][0][0][0][0]-mat['out']['Va'][0][0][0][0])
-        gainarray.append(1.)
-        vlowarray.append(mat['out']['Va'][0][0][0][0])
-        vhiarray.append(mat['out']['Vb'][0][0][0][0])
-        samplerate=np.int(1/(mat['out']['t'][0][0][0][1]-mat['out']['t'][0][0][0][0]))
-        data_arrays=np.concatenate((data_arrays,toi),axis=0)
-    datad['data']=data_arrays
-    datad['samplerate']=samplerate
-    datad['gain']=np.array(gainarray)
-    datad['v_low']=np.array(vlowarray)
-    datad['v_hi']=np.array(vhiarray)
-    return datad
     
 def find_peaks(toi,pksigma=1.5,pkwidth=5):
 # find peaks in toi data first
@@ -149,17 +46,6 @@ def remove_saturation(toi):
 #    outtoi[np.int32(bad)]=0  
 #    outtoi=outtoi[outtoi != 0]
     return(outtoi)
-    
-def get_some_data(npts):
-#acquire from the board
-    BoardNum=0
-    Gain=ul.BIP5VOLTS
-    Chan=0
-    v=zeros(npts)
-    for i in arange(npts):
-        d=ul.cbAIn(BoardNum,Chan,Gain)
-        v[i]=ul.cbToEngUnits(BoardNum,Gain,d)
-    return v
    
 def gaussianresid(p, fjac=None, x=None, y=None, err=None):
     # Parameter values are passed in "p"
