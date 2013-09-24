@@ -3,7 +3,7 @@
 
 import pyfits
 import numpy as np
-import mpfit as mp
+#import mpfit as mp
 import matplotlib.pyplot as plt
 import scipy.io
 import time
