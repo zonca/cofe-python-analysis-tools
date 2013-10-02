@@ -4,7 +4,7 @@ from ConfigParser import ConfigParser
 
 config = dict(  NCHAN=16, 
                 SEC_PER_REV=256, 
-                ENC_START_TRIGGER=15
+                ENC_START_TRIGGER=16
              )
 
 # Names of the data channels:

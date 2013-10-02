@@ -57,9 +57,11 @@ def create_revdata(raw_data, volts=True,supply_index=False):
     if supply_index==True:
         d['enc']=np.mod(d['enc']+6,4096)
     start_of_revs, = np.where(d['enc'] < config['ENC_START_TRIGGER'])
-    d = np.array(d[start_of_revs[0]:start_of_revs[-1]])
-
+    if len(start_of_revs)>0:
+        d = np.array(d[start_of_revs[0]:start_of_revs[-1]])
     d = remove_noise_triggers(d)
+    print len(start_of_revs)
+    print config['ENC_START_TRIGGER']
 
     # remove revolutions with bad number of samples 
     start_of_revs, = np.where(d['enc'] < config['ENC_START_TRIGGER'])
