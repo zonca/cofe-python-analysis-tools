@@ -8,20 +8,24 @@ sys.path.append('/smbmount/labuse/software_github_repos/cofe-python-analysis-too
 sys.path.append('/smbmount/labuse/software_github_repos/cofe-python-analysis-tools/utils_zonca/')
 import cPickle
 from glob import glob
+import matplotlib
+matplotlib.use('agg')
 import cofe_util as cu
 import realtime as rt
+import numpy as np
 
-yrmoday=string(sys.arg[1])
-cdata=rt.getdatanow(yrmoday)
+yrmodays=['20130926','20130927','20130928','20130929','20130930','20131001','20131002','20131003']
+for yrmoday in yrmodays:
+    #yrmoday=sys.argv[1]
+    cdata=rt.getdatanow(yrmoday)
+    chans=[]
+    for i in range(6):
+        chans.append('ch'+str(i))
+    for chan in chans:
+        for mode in ['T','Q','U']:
+            psmap=cu.phasebin(360,cdata['az'],cdata['sci_data'][chan][mode],degrees=True)
+            template=np.mean(psmap,axis=1)
+            alltemplate=np.interp(cdata['az'],np.arange(360),template)
+            cdata['sci_data'][chan][mode]=cdata['sci_data'][chan][mode]-alltemplate
 
-chans=[]
-for i in range(6):
-    chans.append('ch'+string(i))
-for chan in chans:
-    for mode in ['T','Q','U']:
-        psmap=cu.phasebin(360,cdata['az'],cdata['sci_data'][chan][mode],degrees=True)
-        template=mean(psmap,axis=1)
-        alltemplate=np.interp(cdata['az'],arange(360),template
-        cdata['sci_data'][chan][mode]=cdata['sci_data'][chan][mode]-alltemplate
-
-cPickle.dump(cdata,open('combined_data_'+yrmoday+'_sub.pkl','w'),protocol=-1)
+    cPickle.dump(cdata,open('combined_data_'+yrmoday+'_sub.pkl','w'),protocol=-1)

@@ -25,11 +25,17 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False):
     eloffset=5.026 # correction from 2013/08/02 moon crossing for both az and el this for ch 3! 
     azoffset=4.41496
     # on 2013/08/20, updated converter.py to include these offsets, in theory they should now be zero.
-    elffset =0.0
+    eloffset =0.0
     azoffset=0.0
     #ch1 would be azoffset=198.7810-187.663   or 11.118
     #             eloffset= 8.2-5.69175  
     #             eloffset= 2.5082
+    #note October 4, 2013. Just found that data from 9/26/13 through 10/04/13 used old converter.py. So special 
+    #offsets needed:
+    
+    eloffset=5.026
+    azoffset=4.41496+140.0
+    
     errlimit=0.1
     if angles_in_ints==True:
         errlimit=10
