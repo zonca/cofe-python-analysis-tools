@@ -3,7 +3,7 @@
 import numpy as np
 import pyfits as pyfits
 import ephem 
-#import peakanalysis as pk
+import peakanalysis as pk
 import matplotlib.pyplot as plt
 from glob import glob
 from scipy.signal import butter,filtfilt,iirdesign
@@ -284,16 +284,16 @@ def get_cofe_target(ut,lat,lon,target):
 #function to use ephem to find az and el of specified target for COFE
 #parameters: UT, LAt Lon Target
     cofe=ephem.Observer()
-    cofe.elevation=300000
-    year=2011
-    month=9
-    day=17
+    cofe.elevation=0.0
+    year=2013
+    month=10
+    day=04
     az=[]
     el=[]
     for u,la,lo in zip(ut,lat,lon):
         if (u >24):
             u=u-24
-            day=18
+            day=05
         hour=int(np.fix(u))
         minute=(u-hour)*60
         iminute=int(np.fix(minute))
@@ -309,10 +309,15 @@ def get_cofe_target(ut,lat,lon,target):
         
     return np.array(az),np.array(el)
     
-def get_cofe_crossing(ut,toi,gaz,lat,lon,centerut,target,plot=False):
+def get_cofe_crossing(ut,toi,gaz,centerut,lat=None,lon=None,target='Sun',plot=False):
     import peakanalysis as pk
     #function to find maximum peak signal crossing
     #in toi, return azoffset, elevation at crossing
+    sblong=np.radians(-119.699)
+    sblat=np.radians(34.4217)
+    if lat==None:
+        lat=np.zeros(len(ut))+sblat
+        lon=np.zeros(len(ut))+sblong
     t=np.where(abs(ut-centerut) < .3/60.)
     h,=np.where(toi[t] == np.min(toi[t]))
     h=np.int(np.median(h))
@@ -326,6 +331,7 @@ def get_cofe_crossing(ut,toi,gaz,lat,lon,centerut,target,plot=False):
         plt.hold(True)
         plt.plot(x,gauss)
     center=np.round(gfit[0].params[2])
+    print(center)
     targetaz=rtd*targetpos[0][center]
     targetel=rtd*targetpos[1][center]
     azoffset=targetaz-gaz[center+t[0][0]]*rtd

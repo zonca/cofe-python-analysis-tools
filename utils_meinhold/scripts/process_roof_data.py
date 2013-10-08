@@ -6,6 +6,7 @@
 import sys
 sys.path.append('/smbmount/labuse/software_github_repos/cofe-python-analysis-tools/utils_meinhold/')
 sys.path.append('/smbmount/labuse/software_github_repos/cofe-python-analysis-tools/utils_zonca/')
+sys.path.append('/usr/local/lib/python2.7/site-packages/')
 import cPickle
 from glob import glob
 import matplotlib

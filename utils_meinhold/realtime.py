@@ -35,6 +35,12 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False):
     
     eloffset=5.026
     azoffset=4.41496+140.0
+    #update, 10/8/13. ran get_cofe_crossing on second sun crossing from 10/04 (after subtracting 
+    #template estimate of satellites,important effect). delta offsets: az=2.10,el=0.934
+    #these then would be future offsets
+    eloffset=5.026+0.934
+    azoffset=4.41496+140.0+2.1
+    
     
     errlimit=0.1
     if angles_in_ints==True:
