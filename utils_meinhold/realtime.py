@@ -12,10 +12,11 @@ import numpy as np
 from numpy.lib import recfunctions as recf
 samprate=27.  #assumed spin rate of pol modulator for rough time estimation inside files
 
-def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False):
+def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False,azel_era=3):
     """
         modify to fast version, dont' average the multiple values, just take the first one. will cause a little bias but its very fast.
     also implmented removal of erroneous endof h5 file crap, and az outliers
+    azel_era determines what az/el offsets to use, 1 means before 9/26/2013, 2 means 9/26-10/3 (inclusive), 3 means after 10/4.
     """
     
     #filelist is complete path list to the h5 files
@@ -32,14 +33,20 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False):
     #             eloffset= 2.5082
     #note October 4, 2013. Just found that data from 9/26/13 through 10/04/13 used old converter.py. So special 
     #offsets needed:
-    
-    eloffset=5.026
-    azoffset=4.41496+140.0
     #update, 10/8/13. ran get_cofe_crossing on second sun crossing from 10/04 (after subtracting 
     #template estimate of satellites,important effect). delta offsets: az=2.10,el=0.934
     #these then would be future offsets
-    eloffset=5.026+0.934
-    azoffset=4.41496+140.0+2.1
+    if azel_era==1:
+        eloffset=5.026
+        azoffset=4.41496+140.0
+    if azel_era=2:
+        eloffset=5.026+0.934
+        azoffset=4.41496+140.0+2.1
+    if azel_era=3:
+        eloffset=0.934
+        azoffset=2.1
+    
+    
     
     
     errlimit=0.1
