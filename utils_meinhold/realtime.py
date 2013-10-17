@@ -199,7 +199,7 @@ def plotrawnow(yrmoday,fpath='',chan='ch2'):
     stats=os.stat(fld[-1])
     if stats.st_size == 10752000:
         dr=demod.read_raw([fld[-1]])
-        for i in range(0,shape(dr[chan])[0],50):
+        for i in range(0,np.shape(dr[chan])[0],50):
             plt.plot(dr[chan][i,:])
             plt.xlabel('encoder position')
             plt.ylabel('Signal, V')
