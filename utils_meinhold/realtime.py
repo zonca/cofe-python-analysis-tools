@@ -180,10 +180,10 @@ def plotnow(yrmoday,fpath='',chan='ch2'):
         pp=get_h5_pointing(flp[-3:])
     dd=get_demodulated_data_from_list(fld[-2:])
     combined=combine_cofe_h5_pointing(dd,pp)
-    plt.plot(combined['az'],combined['sci_data'][chan]['T'],label=fld[-2]+'  '+fld[-1])
+    plt.plot(combined['az'],combined['sci_data'][chan]['T'],label=fld[-2][-12:-4]+' - '+fld[-1][-12:-4])
     plt.xlabel('Azimuth angle, degrees')
     plt.ylabel('Signal, V')
-    plt.title(chan+' COFE data binned to azimuth, file: '+fld[-1])
+    plt.title(chan+' COFE data binned to azimuth, date: '+fld[-1][-21:-13])
     plt.legend()
     plt.grid()
     plt.show()
@@ -201,7 +201,7 @@ def plotrawnow(yrmoday,fpath='',chan='ch2'):
     if stats.st_size == 10752000:
         dr=demod.read_raw([fld[-1]])
         for i in range(0,np.shape(dr[chan])[0],50):
-            plt.plot(dr[chan][i,:],legend='rev '+str(i))
+            plt.plot(dr[chan][i,:],label='rev '+str(i))
         plt.xlabel('encoder position')
         plt.ylabel('Signal, V')
         plt.title('Ch2 raw data, every 50 revs, file: '+fld[-1])
