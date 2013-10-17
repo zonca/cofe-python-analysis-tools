@@ -39,10 +39,10 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False,az
     if azel_era==1:
         eloffset=5.026
         azoffset=4.41496+140.0
-    if azel_era=2:
+    if azel_era==2:
         eloffset=5.026+0.934
         azoffset=4.41496+140.0+2.1
-    if azel_era=3:
+    if azel_era==3:
         eloffset=0.934
         azoffset=2.10
     
