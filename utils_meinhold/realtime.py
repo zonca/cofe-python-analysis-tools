@@ -180,10 +180,11 @@ def plotnow(yrmoday,fpath='',chan='ch2'):
         pp=get_h5_pointing(flp[-3:])
     dd=get_demodulated_data_from_list(fld[-2:])
     combined=combine_cofe_h5_pointing(dd,pp)
-    plt.plot(combined['az'],combined['sci_data'][chan]['T'])
+    plt.plot(combined['az'],combined['sci_data'][chan]['T'],label=fld[-2]+'  '+fld[-1])
     plt.xlabel('Azimuth angle, degrees')
     plt.ylabel('Signal, V')
-    plt.title('Ch2 binned to azimuth, file: '+fld[-1])
+    plt.title(chan+' COFE data binned to azimuth, file: '+fld[-1])
+    legend()
     plt.grid()
     plt.show()
     return combined
