@@ -97,7 +97,7 @@ def get_demodulated_data_from_list(filelist,freq=10,supply_index=True):
     for f in filelist:
         #only use full size files
         stats=os.stat(f)
-        if stats.st_size = 10752000:
+        if stats.st_size == 10752000:
             print f
             d=demod.demodulate_dat(f,freq,supply_index=True)
             #filename is start of data taking (I think) and we'll just add 1/samprate seconds per rev
