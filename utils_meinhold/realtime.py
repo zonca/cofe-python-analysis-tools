@@ -3,6 +3,7 @@ set of scripts to run while taking data for first look analysis
 (run from main ground_cofe directory so paths work out right)
 """
 from glob import glob
+import os
 import matplotlib.pyplot as plt
 import cofe_util as cu
 import demod
@@ -54,11 +55,13 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False,az
     hpointing=[]
     filelist.sort()
     for f in filelist:
-        print(f)
-        h=h5py.File(f)
-        hh=h['data']
-        hpointing.append(hh[hh['rev']>=hh['rev'][0]])
-        h.close()
+        stats=os.stat(f)
+        if stats.st_size > 150000:
+            print(f)
+            h=h5py.File(f)
+            hh=h['data']
+            hpointing.append(hh[hh['rev']>=hh['rev'][0]])
+            h.close()
     
     hpointing = np.concatenate(hpointing)
     #cut out blank lines from unfilled files
@@ -92,25 +95,28 @@ def get_demodulated_data_from_list(filelist,freq=10,supply_index=True):
     filelist.sort() #just in case
     dd=[]
     for f in filelist:
-        print f
-        d=demod.demodulate_dat(f,freq,supply_index=True)
-        #filename is start of data taking (I think) and we'll just add 1/samprate seconds per rev
-        h=np.float64(f[-12:-10])
-        m=np.float64(f[-10:-8])
-        s=np.float64(f[-8:-6])
-        t=h+m/60.+(s+(d['rev']-d['rev'][0])/samprate)/3600.
-        d=recf.append_fields(d,'localtime',t)
-        ut=np.mod(t+7.,24.)
-        if len(f)>21:
-            y=np.zeros(len(d),dtype=np.int)+np.int(f[-21:-17])
-            mo=np.zeros(len(d),dtype=np.int)+np.int(f[-17:-15])
-            dy=np.zeros(len(d),dtype=np.int)+np.int(f[-15:-13])
+        #only use full size files
+        stats=os.stat(f)
+        if stats.st_size = 10752000:
+            print f
+            d=demod.demodulate_dat(f,freq,supply_index=True)
+            #filename is start of data taking (I think) and we'll just add 1/samprate seconds per rev
+            h=np.float64(f[-12:-10])
+            m=np.float64(f[-10:-8])
+            s=np.float64(f[-8:-6])
+            t=h+m/60.+(s+(d['rev']-d['rev'][0])/samprate)/3600.
+            d=recf.append_fields(d,'localtime',t)
             ut=np.mod(t+7.,24.)
-            utt=t+7.
-            dy[utt>ut]=dy[utt>ut]+1
-            d=recf.append_fields(d,['year','month','day'],[y,mo,dy])
-        d=recf.append_fields(d,'ut',ut)
-        dd.append(d)
+            if len(f)>21:
+                y=np.zeros(len(d),dtype=np.int)+np.int(f[-21:-17])
+                mo=np.zeros(len(d),dtype=np.int)+np.int(f[-17:-15])
+                dy=np.zeros(len(d),dtype=np.int)+np.int(f[-15:-13])
+                ut=np.mod(t+7.,24.)
+                utt=t+7.
+                dy[utt>ut]=dy[utt>ut]+1
+                d=recf.append_fields(d,['year','month','day'],[y,mo,dy])
+            d=recf.append_fields(d,'ut',ut)
+            dd.append(d)
     return np.concatenate(dd)
     
 def combine_cofe_h5_pointing(dd,h5pointing,outfile='combined_data.pkl'):
@@ -165,7 +171,7 @@ def plotnow(yrmoday,fpath='',chan='ch2'):
     fld=glob(fpath+'data/'+yrmoday+'/*.dat')
     fld.sort()
     flp=glob(fpath+yrmoday[4:6]+'-'+yrmoday[6:8]+'-'+yrmoday[0:4]+'/*.h5')
-    fld.sort()
+    flp.sort()
     if len(flp)<5:
         pp=get_h5_pointing(flp)
     if len(flp)>4:
