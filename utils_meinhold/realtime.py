@@ -56,6 +56,8 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False,az
     filelist.sort()
     for f in filelist:
         stats=os.stat(f)
+        if stats.st_size<150000:
+            print f,stats.st_size
         if stats.st_size > 150000:
             print(f)
             h=h5py.File(f)
