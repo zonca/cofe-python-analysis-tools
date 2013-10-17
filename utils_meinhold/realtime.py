@@ -172,10 +172,8 @@ def plotnow(yrmoday,fpath='',chan='ch2'):
     """
     fld=glob(fpath+'data/'+yrmoday+'/*.dat')
     fld.sort()
-    print fld
     flp=glob(fpath+yrmoday[4:6]+'-'+yrmoday[6:8]+'-'+yrmoday[0:4]+'/*.h5')
     flp.sort()
-    print flp
     if len(flp)<5:
         pp=get_h5_pointing(flp)
     if len(flp)>4:
@@ -189,6 +187,26 @@ def plotnow(yrmoday,fpath='',chan='ch2'):
     plt.grid()
     plt.show()
     return combined
+
+def plotrawnow(yrmoday,fpath='',chan='ch2'):
+    """
+    function to automatically read last science file plot raw data vs encoder
+    yrmoday should be a string '20130502' fpath should point to the 
+    directory where acq_tel and converter.py were run
+    """
+    fld=glob(fpath+'data/'+yrmoday+'/*.dat')
+    fld.sort()
+    stats=os.stat(fld[-1])
+    if stats.st_size == 10752000:
+        dr=demod.read_raw([fld[-1]])
+        for i in range(0,shape(dr[chan])[0],50):
+            plt.plot(dr[chan][i,:])
+            plt.xlabel('encoder position')
+            plt.ylabel('Signal, V')
+            plt.title('Ch2 raw data, every 50 revs, file: '+fld[-1])
+            plt.grid()
+            plt.show()
+    return dr
     
 def psmapcurrent(cdata,chan='ch2',cmode='T',nbins=360):
     """
