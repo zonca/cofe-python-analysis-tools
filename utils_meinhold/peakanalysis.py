@@ -3,7 +3,7 @@
 
 import pyfits
 import numpy as np
-import mpfit as mp
+
 import matplotlib.pyplot as plt
 import scipy.io
 import time
@@ -103,6 +103,7 @@ def fit_a_peak_ser(toi, peak, pplot=True,invert=None,maxiter=3,pkcapwidth=20,toi
     # procedure to run mpfit on a toi at the position peak
     # use this to test consistency by hand
     #this one just fits the subset of toi provided
+    import mpfit as mp
     x=np.arange(len(toi))
     if toierr==None:
         toierr=np.std(toi)
