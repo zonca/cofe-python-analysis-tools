@@ -172,8 +172,10 @@ def plotnow(yrmoday,fpath='',chan='ch2'):
     """
     fld=glob(fpath+'data/'+yrmoday+'/*.dat')
     fld.sort()
+    print fld
     flp=glob(fpath+yrmoday[4:6]+'-'+yrmoday[6:8]+'-'+yrmoday[0:4]+'/*.h5')
     flp.sort()
+    print flp
     if len(flp)<5:
         pp=get_h5_pointing(flp)
     if len(flp)>4:
