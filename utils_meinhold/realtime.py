@@ -204,7 +204,7 @@ def plotrawnow(yrmoday,fpath='',chan='ch2'):
             plt.plot(dr[chan][i,:],label='rev '+str(i))
         plt.xlabel('encoder position')
         plt.ylabel('Signal, V')
-        plt.title('Ch2 raw data, every 50 revs, file: '+fld[-1])
+        plt.title(chan+' Raw data, every 50 revs, file: '+fld[-1])
         plt.legend()
         plt.grid()
         plt.show()
