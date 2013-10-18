@@ -189,22 +189,23 @@ def plotnow(yrmoday,fpath='',chan='ch2'):
     plt.show()
     return combined
 
-def plotrawnow(yrmoday,fpath='',chan='ch2'):
+def plotrawnow(yrmoday,fpath='',chan='ch2',rstep=50):
     """
     function to automatically read last science file plot raw data vs encoder
     yrmoday should be a string '20130502' fpath should point to the 
     directory where acq_tel and converter.py were run
+    rstep determines how many revolutions to skip between plotted revolutions
     """
     fld=glob(fpath+'data/'+yrmoday+'/*.dat')
     fld.sort()
     stats=os.stat(fld[-1])
     if stats.st_size == 10752000:
         dr=demod.read_raw([fld[-1]])
-        for i in range(0,np.shape(dr[chan])[0],50):
+        for i in range(0,np.shape(dr[chan])[0],rstep):
             plt.plot(dr[chan][i,:],label='rev '+str(i))
         plt.xlabel('encoder position')
         plt.ylabel('Signal, V')
-        plt.title(chan+' Raw data, every 50 revs, file: '+fld[-1])
+        plt.title(chan+' Raw data, every '+str(rstep) + ' revs, file: '+fld[-1])
         plt.legend()
         plt.grid()
         plt.show()
