@@ -101,7 +101,7 @@ def get_demodulated_data_from_list(filelist,freq=10,supply_index=True):
         stats=os.stat(f)
         if stats.st_size == 10752000:
             print f
-            d=demod.demodulate_dat(f,freq,C
+            d=demod.demodulate_dat(f,freq,supply_index=True)
             #filename is start of data taking (I think) and we'll just add 1/samprate seconds per rev
             h=np.float64(f[-12:-10])
             m=np.float64(f[-10:-8])
@@ -163,7 +163,7 @@ def bin_to_az_el(indata,nazbins=360,nelbins=90,chan='ch3',cmode='T',revlimits=[0
     return outmap
 
 
-def plotnow(yrmoday,fpath='',chan='ch2'):
+def plotnow(yrmoday,fpath='',chan='ch2',supply_index=False):
     """
     function to automatically read last 2 science files and last few pointing
     files, combine and plot signal vs azimuth. yrmoday should be a string
@@ -178,7 +178,7 @@ def plotnow(yrmoday,fpath='',chan='ch2'):
         pp=get_h5_pointing(flp)
     if len(flp)>4:
         pp=get_h5_pointing(flp[-3:])
-    dd=get_demodulated_data_from_list(fld[-2:])
+    dd=get_demodulated_data_from_list(fld[-2:],supply_index=supply_index)
     combined=combine_cofe_h5_pointing(dd,pp)
     plt.plot(combined['az'],combined['sci_data'][chan]['T'],label=fld[-2][-12:-4]+' - '+fld[-1][-12:-4])
     plt.xlabel('Azimuth angle, degrees')
