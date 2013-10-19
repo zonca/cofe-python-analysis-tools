@@ -101,7 +101,7 @@ def get_demodulated_data_from_list(filelist,freq=10,supply_index=True):
         stats=os.stat(f)
         if stats.st_size == 10752000:
             print f
-            d=demod.demodulate_dat(f,freq,supply_index=True)
+            d=demod.demodulate_dat(f,freq,C
             #filename is start of data taking (I think) and we'll just add 1/samprate seconds per rev
             h=np.float64(f[-12:-10])
             m=np.float64(f[-10:-8])
@@ -189,7 +189,7 @@ def plotnow(yrmoday,fpath='',chan='ch2'):
     plt.show()
     return combined
 
-def plotrawnow(yrmoday,fpath='',chan='ch2',rstep=50):
+def plotrawnow(yrmoday,fpath='',chan='ch2',rstep=50,supply_index=False):
     """
     function to automatically read last science file plot raw data vs encoder
     yrmoday should be a string '20130502' fpath should point to the 
@@ -200,7 +200,7 @@ def plotrawnow(yrmoday,fpath='',chan='ch2',rstep=50):
     fld.sort()
     stats=os.stat(fld[-1])
     if stats.st_size == 10752000:
-        dr=demod.read_raw([fld[-1]])
+        dr=demod.read_raw([fld[-1]],supply_index=supply_index)
         for i in range(0,np.shape(dr[chan])[0],rstep):
             plt.plot(dr[chan][i,:],label='rev '+str(i))
         plt.xlabel('encoder position')
