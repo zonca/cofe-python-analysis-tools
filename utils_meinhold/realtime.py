@@ -82,12 +82,12 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False,az
     daz=np.diff(azmeans)
     
     badaz=np.unique(np.where(np.logical_and((np.abs(daz) > 5.) , (np.abs(daz+359.5) > 5.)))[0])
-    if (badaz[-1]-len(daz) < 3):
-        badaz=badaz[:-1]
-    if (badaz[0] < 3):
-        badaz=badaz[1:]
-    
-    azmeans[badaz]=(azmeans[badaz-2]+azmeans[badaz+2])/2.0
+    if len(badaz > 1):
+        if (badaz[-1]-len(daz) < 3):
+            badaz=badaz[:-1]
+        if (badaz[0] < 3):
+            badaz=badaz[1:]
+        azmeans[badaz]=(azmeans[badaz-2]+azmeans[badaz+2])/2.0
     azmeans=np.mod(azmeans,360.)
     return {'el':elmeans,'az':azmeans,'rev':hrevlist}
 
