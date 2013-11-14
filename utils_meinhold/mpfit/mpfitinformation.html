@@ -1,0 +1,747 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Python: module mpfit</title>
+<style type="text/css"><!--
+TT { font-family: lucidatypewriter, lucida console, courier }
+--></style></head><body bgcolor="#f0f0f8">
+
+<table summary="heading" border="0" cellpadding="2" cellspacing="0" width="100%">
+<tbody><tr bgcolor="#7799ee">
+<td valign="bottom">&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>mpfit</strong></big></big></font></td><td align="right" valign="bottom"><font color="#ffffff" face="helvetica, arial"><a href="http://cars9.uchicago.edu/software/python/">index</a><br><a href="file:///usr/local/python/epics/mpfit.py">/usr/local/python/epics/mpfit.py</a></font></td></tr></tbody></table>
+    <p><tt>Perform&nbsp;Levenberg-Marquardt&nbsp;least-squares&nbsp;minimization,&nbsp;based&nbsp;on&nbsp;MINPACK-1.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHORS<br>
+&nbsp;&nbsp;The&nbsp;original&nbsp;version&nbsp;of&nbsp;this&nbsp;software,&nbsp;called&nbsp;LMFIT,&nbsp;was&nbsp;written&nbsp;in&nbsp;FORTRAN<br>
+&nbsp;&nbsp;as&nbsp;part&nbsp;of&nbsp;the&nbsp;MINPACK-1&nbsp;package&nbsp;by&nbsp;XXX.<br>
+&nbsp;<br>
+&nbsp;&nbsp;Craig&nbsp;Markwardt&nbsp;converted&nbsp;the&nbsp;FORTRAN&nbsp;code&nbsp;to&nbsp;IDL.&nbsp;&nbsp;The&nbsp;information&nbsp;for&nbsp;the<br>
+&nbsp;&nbsp;IDL&nbsp;version&nbsp;is:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Craig&nbsp;B.&nbsp;Markwardt,&nbsp;NASA/GSFC&nbsp;Code&nbsp;662,&nbsp;Greenbelt,&nbsp;MD&nbsp;20770<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;craigm@lheamail.gsfc.nasa.gov<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATED&nbsp;VERSIONs&nbsp;can&nbsp;be&nbsp;found&nbsp;on&nbsp;my&nbsp;WEB&nbsp;PAGE:&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://cow.physics.wisc.edu/%7Ecraigm/idl/idl.html">http://cow.physics.wisc.edu/~craigm/idl/idl.html</a><br>
+&nbsp;<br>
+&nbsp;&nbsp;Mark&nbsp;Rivers&nbsp;created&nbsp;this&nbsp;Python&nbsp;version&nbsp;from&nbsp;Craig's&nbsp;IDL&nbsp;version.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Mark&nbsp;Rivers,&nbsp;University&nbsp;of&nbsp;Chicago<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Building&nbsp;434A,&nbsp;Argonne&nbsp;National&nbsp;Laboratory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;9700&nbsp;South&nbsp;Cass&nbsp;Avenue,&nbsp;Argonne,&nbsp;IL&nbsp;60439<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rivers@cars.uchicago.edu<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Updated&nbsp;versions&nbsp;can&nbsp;be&nbsp;found&nbsp;at&nbsp;<a href="http://cars.uchicago.edu/software">http://cars.uchicago.edu/software</a><br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br>
+&nbsp;<br>
+&nbsp;MPFIT&nbsp;uses&nbsp;the&nbsp;Levenberg-Marquardt&nbsp;technique&nbsp;to&nbsp;solve&nbsp;the<br>
+&nbsp;least-squares&nbsp;problem.&nbsp;&nbsp;In&nbsp;its&nbsp;typical&nbsp;use,&nbsp;MPFIT&nbsp;will&nbsp;be&nbsp;used&nbsp;to<br>
+&nbsp;fit&nbsp;a&nbsp;user-supplied&nbsp;function&nbsp;(the&nbsp;"model")&nbsp;to&nbsp;user-supplied&nbsp;data<br>
+&nbsp;points&nbsp;(the&nbsp;"data")&nbsp;by&nbsp;adjusting&nbsp;a&nbsp;set&nbsp;of&nbsp;parameters.&nbsp;&nbsp;MPFIT&nbsp;is<br>
+&nbsp;based&nbsp;upon&nbsp;MINPACK-1&nbsp;(LMDIF.F)&nbsp;by&nbsp;More'&nbsp;and&nbsp;collaborators.<br>
+&nbsp;<br>
+&nbsp;For&nbsp;example,&nbsp;a&nbsp;researcher&nbsp;may&nbsp;think&nbsp;that&nbsp;a&nbsp;set&nbsp;of&nbsp;observed&nbsp;data<br>
+&nbsp;points&nbsp;is&nbsp;best&nbsp;modelled&nbsp;with&nbsp;a&nbsp;Gaussian&nbsp;curve.&nbsp;&nbsp;A&nbsp;Gaussian&nbsp;curve&nbsp;is<br>
+&nbsp;parameterized&nbsp;by&nbsp;its&nbsp;mean,&nbsp;standard&nbsp;deviation&nbsp;and&nbsp;normalization.<br>
+&nbsp;MPFIT&nbsp;will,&nbsp;within&nbsp;certain&nbsp;constraints,&nbsp;find&nbsp;the&nbsp;set&nbsp;of&nbsp;parameters<br>
+&nbsp;which&nbsp;best&nbsp;fits&nbsp;the&nbsp;data.&nbsp;&nbsp;The&nbsp;fit&nbsp;is&nbsp;"best"&nbsp;in&nbsp;the&nbsp;least-squares<br>
+&nbsp;sense;&nbsp;that&nbsp;is,&nbsp;the&nbsp;sum&nbsp;of&nbsp;the&nbsp;weighted&nbsp;squared&nbsp;differences&nbsp;between<br>
+&nbsp;the&nbsp;model&nbsp;and&nbsp;data&nbsp;is&nbsp;minimized.<br>
+&nbsp;<br>
+&nbsp;The&nbsp;Levenberg-Marquardt&nbsp;technique&nbsp;is&nbsp;a&nbsp;particular&nbsp;strategy&nbsp;for<br>
+&nbsp;iteratively&nbsp;searching&nbsp;for&nbsp;the&nbsp;best&nbsp;fit.&nbsp;&nbsp;This&nbsp;particular<br>
+&nbsp;implementation&nbsp;is&nbsp;drawn&nbsp;from&nbsp;MINPACK-1&nbsp;(see&nbsp;NETLIB),&nbsp;and&nbsp;is&nbsp;much&nbsp;faster<br>
+&nbsp;and&nbsp;more&nbsp;accurate&nbsp;than&nbsp;the&nbsp;version&nbsp;provided&nbsp;in&nbsp;the&nbsp;Scientific&nbsp;Python&nbsp;package<br>
+&nbsp;in&nbsp;Scientific.Functions.LeastSquares.<br>
+&nbsp;This&nbsp;version&nbsp;allows&nbsp;upper&nbsp;and&nbsp;lower&nbsp;bounding&nbsp;constraints&nbsp;to&nbsp;be&nbsp;placed&nbsp;on&nbsp;each<br>
+&nbsp;parameter,&nbsp;or&nbsp;the&nbsp;parameter&nbsp;can&nbsp;be&nbsp;held&nbsp;fixed.<br>
+&nbsp;<br>
+&nbsp;The&nbsp;user-supplied&nbsp;Python&nbsp;function&nbsp;should&nbsp;return&nbsp;an&nbsp;array&nbsp;of&nbsp;weighted<br>
+&nbsp;deviations&nbsp;between&nbsp;model&nbsp;and&nbsp;data.&nbsp;&nbsp;In&nbsp;a&nbsp;typical&nbsp;scientific&nbsp;problem<br>
+&nbsp;the&nbsp;residuals&nbsp;should&nbsp;be&nbsp;weighted&nbsp;so&nbsp;that&nbsp;each&nbsp;deviate&nbsp;has&nbsp;a<br>
+&nbsp;gaussian&nbsp;sigma&nbsp;of&nbsp;1.0.&nbsp;&nbsp;If&nbsp;X&nbsp;represents&nbsp;values&nbsp;of&nbsp;the&nbsp;independent<br>
+&nbsp;variable,&nbsp;Y&nbsp;represents&nbsp;a&nbsp;measurement&nbsp;for&nbsp;each&nbsp;value&nbsp;of&nbsp;X,&nbsp;and&nbsp;ERR<br>
+&nbsp;represents&nbsp;the&nbsp;error&nbsp;in&nbsp;the&nbsp;measurements,&nbsp;then&nbsp;the&nbsp;deviates&nbsp;could<br>
+&nbsp;be&nbsp;calculated&nbsp;as&nbsp;follows:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;DEVIATES&nbsp;=&nbsp;(Y&nbsp;-&nbsp;F(X))&nbsp;/&nbsp;ERR<br>
+&nbsp;<br>
+&nbsp;where&nbsp;F&nbsp;is&nbsp;the&nbsp;analytical&nbsp;function&nbsp;representing&nbsp;the&nbsp;model.&nbsp;&nbsp;You&nbsp;are<br>
+&nbsp;recommended&nbsp;to&nbsp;use&nbsp;the&nbsp;convenience&nbsp;functions&nbsp;MPFITFUN&nbsp;and<br>
+&nbsp;MPFITEXPR,&nbsp;which&nbsp;are&nbsp;driver&nbsp;functions&nbsp;that&nbsp;calculate&nbsp;the&nbsp;deviates<br>
+&nbsp;for&nbsp;you.&nbsp;&nbsp;If&nbsp;ERR&nbsp;are&nbsp;the&nbsp;1-sigma&nbsp;uncertainties&nbsp;in&nbsp;Y,&nbsp;then<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;TOTAL(&nbsp;DEVIATES^2&nbsp;)&nbsp;<br>
+&nbsp;<br>
+&nbsp;will&nbsp;be&nbsp;the&nbsp;total&nbsp;chi-squared&nbsp;value.&nbsp;&nbsp;MPFIT&nbsp;will&nbsp;minimize&nbsp;the<br>
+&nbsp;chi-square&nbsp;value.&nbsp;&nbsp;The&nbsp;values&nbsp;of&nbsp;X,&nbsp;Y&nbsp;and&nbsp;ERR&nbsp;are&nbsp;passed&nbsp;through<br>
+&nbsp;MPFIT&nbsp;to&nbsp;the&nbsp;user-supplied&nbsp;function&nbsp;via&nbsp;the&nbsp;FUNCTKW&nbsp;keyword.<br>
+&nbsp;<br>
+&nbsp;Simple&nbsp;constraints&nbsp;can&nbsp;be&nbsp;placed&nbsp;on&nbsp;parameter&nbsp;values&nbsp;by&nbsp;using&nbsp;the<br>
+&nbsp;PARINFO&nbsp;keyword&nbsp;to&nbsp;MPFIT.&nbsp;&nbsp;See&nbsp;below&nbsp;for&nbsp;a&nbsp;description&nbsp;of&nbsp;this<br>
+&nbsp;keyword.<br>
+&nbsp;<br>
+&nbsp;MPFIT&nbsp;does&nbsp;not&nbsp;perform&nbsp;more&nbsp;general&nbsp;optimization&nbsp;tasks.&nbsp;&nbsp;See&nbsp;TNMIN<br>
+&nbsp;instead.&nbsp;&nbsp;MPFIT&nbsp;is&nbsp;customized,&nbsp;based&nbsp;on&nbsp;MINPACK-1,&nbsp;to&nbsp;the<br>
+&nbsp;least-squares&nbsp;minimization&nbsp;problem.<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER&nbsp;FUNCTION<br>
+&nbsp;<br>
+&nbsp;The&nbsp;user&nbsp;must&nbsp;define&nbsp;a&nbsp;function&nbsp;which&nbsp;returns&nbsp;the&nbsp;appropriate<br>
+&nbsp;values&nbsp;as&nbsp;specified&nbsp;above.&nbsp;&nbsp;The&nbsp;function&nbsp;should&nbsp;return&nbsp;the&nbsp;weighted<br>
+&nbsp;deviations&nbsp;between&nbsp;the&nbsp;model&nbsp;and&nbsp;the&nbsp;data.&nbsp;&nbsp;It&nbsp;should&nbsp;also&nbsp;return&nbsp;a&nbsp;status<br>
+&nbsp;flag&nbsp;and&nbsp;an&nbsp;optional&nbsp;partial&nbsp;derivative&nbsp;array.&nbsp;&nbsp;For&nbsp;applications&nbsp;which<br>
+&nbsp;use&nbsp;finite-difference&nbsp;derivatives&nbsp;--&nbsp;the&nbsp;default&nbsp;--&nbsp;the&nbsp;user<br>
+&nbsp;function&nbsp;should&nbsp;be&nbsp;declared&nbsp;in&nbsp;the&nbsp;following&nbsp;way:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;def&nbsp;myfunct(p,&nbsp;fjac=None,&nbsp;x=None,&nbsp;y=None,&nbsp;err=None)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Parameter&nbsp;values&nbsp;are&nbsp;passed&nbsp;in&nbsp;"p"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;If&nbsp;fjac==None&nbsp;then&nbsp;partial&nbsp;derivatives&nbsp;should&nbsp;not&nbsp;be<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;computed.&nbsp;&nbsp;It&nbsp;will&nbsp;always&nbsp;be&nbsp;None&nbsp;if&nbsp;MPFIT&nbsp;is&nbsp;called&nbsp;with&nbsp;default<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;flag.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;model&nbsp;=&nbsp;F(x,&nbsp;p)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Non-negative&nbsp;status&nbsp;value&nbsp;means&nbsp;MPFIT&nbsp;should&nbsp;continue,&nbsp;negative&nbsp;means<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stop&nbsp;the&nbsp;calculation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;status&nbsp;=&nbsp;0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return([status,&nbsp;(y-model)/err]<br>
+&nbsp;<br>
+&nbsp;See&nbsp;below&nbsp;for&nbsp;applications&nbsp;with&nbsp;analytical&nbsp;derivatives.<br>
+&nbsp;<br>
+&nbsp;The&nbsp;keyword&nbsp;parameters&nbsp;X,&nbsp;Y,&nbsp;and&nbsp;ERR&nbsp;in&nbsp;the&nbsp;example&nbsp;above&nbsp;are<br>
+&nbsp;suggestive&nbsp;but&nbsp;not&nbsp;required.&nbsp;&nbsp;Any&nbsp;parameters&nbsp;can&nbsp;be&nbsp;passed&nbsp;to<br>
+&nbsp;MYFUNCT&nbsp;by&nbsp;using&nbsp;the&nbsp;functkw&nbsp;keyword&nbsp;to&nbsp;MPFIT.&nbsp;&nbsp;Use&nbsp;MPFITFUN&nbsp;and<br>
+&nbsp;MPFITEXPR&nbsp;if&nbsp;you&nbsp;need&nbsp;ideas&nbsp;on&nbsp;how&nbsp;to&nbsp;do&nbsp;that.&nbsp;&nbsp;The&nbsp;function&nbsp;*must*<br>
+&nbsp;accept&nbsp;a&nbsp;parameter&nbsp;list,&nbsp;P.<br>
+&nbsp;<br>
+&nbsp;In&nbsp;general&nbsp;there&nbsp;are&nbsp;no&nbsp;restrictions&nbsp;on&nbsp;the&nbsp;number&nbsp;of&nbsp;dimensions&nbsp;in<br>
+&nbsp;X,&nbsp;Y&nbsp;or&nbsp;ERR.&nbsp;&nbsp;However&nbsp;the&nbsp;deviates&nbsp;*must*&nbsp;be&nbsp;returned&nbsp;in&nbsp;a<br>
+&nbsp;one-dimensional&nbsp;Numeric&nbsp;array&nbsp;of&nbsp;type&nbsp;Float.<br>
+&nbsp;<br>
+&nbsp;User&nbsp;functions&nbsp;may&nbsp;also&nbsp;indicate&nbsp;a&nbsp;fatal&nbsp;error&nbsp;condition&nbsp;using&nbsp;the<br>
+&nbsp;status&nbsp;return&nbsp;described&nbsp;above.&nbsp;If&nbsp;status&nbsp;is&nbsp;set&nbsp;to&nbsp;a&nbsp;number&nbsp;between<br>
+&nbsp;-15&nbsp;and&nbsp;-1&nbsp;then&nbsp;MPFIT&nbsp;will&nbsp;stop&nbsp;the&nbsp;calculation&nbsp;and&nbsp;return&nbsp;to&nbsp;the&nbsp;caller.<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ANALYTIC&nbsp;DERIVATIVES<br>
+&nbsp;<br>
+&nbsp;In&nbsp;the&nbsp;search&nbsp;for&nbsp;the&nbsp;best-fit&nbsp;solution,&nbsp;MPFIT&nbsp;by&nbsp;default<br>
+&nbsp;calculates&nbsp;derivatives&nbsp;numerically&nbsp;via&nbsp;a&nbsp;finite&nbsp;difference<br>
+&nbsp;approximation.&nbsp;&nbsp;The&nbsp;user-supplied&nbsp;function&nbsp;need&nbsp;not&nbsp;calculate&nbsp;the<br>
+&nbsp;derivatives&nbsp;explicitly.&nbsp;&nbsp;However,&nbsp;if&nbsp;you&nbsp;desire&nbsp;to&nbsp;compute&nbsp;them<br>
+&nbsp;analytically,&nbsp;then&nbsp;the&nbsp;AUTODERIVATIVE=0&nbsp;keyword&nbsp;must&nbsp;be&nbsp;passed&nbsp;to&nbsp;MPFIT.<br>
+&nbsp;As&nbsp;a&nbsp;practical&nbsp;matter,&nbsp;it&nbsp;is&nbsp;often&nbsp;sufficient&nbsp;and&nbsp;even&nbsp;faster&nbsp;to&nbsp;allow<br>
+&nbsp;MPFIT&nbsp;to&nbsp;calculate&nbsp;the&nbsp;derivatives&nbsp;numerically,&nbsp;and&nbsp;so<br>
+&nbsp;AUTODERIVATIVE=0&nbsp;is&nbsp;not&nbsp;necessary.<br>
+&nbsp;<br>
+&nbsp;If&nbsp;AUTODERIVATIVE=0&nbsp;is&nbsp;used&nbsp;then&nbsp;the&nbsp;user&nbsp;function&nbsp;must&nbsp;check&nbsp;the&nbsp;parameter<br>
+&nbsp;FJAC,&nbsp;and&nbsp;if&nbsp;FJAC!=None&nbsp;then&nbsp;return&nbsp;the&nbsp;partial&nbsp;derivative&nbsp;array&nbsp;in&nbsp;the<br>
+&nbsp;return&nbsp;list.<br>
+&nbsp;&nbsp;&nbsp;def&nbsp;myfunct(p,&nbsp;fjac=None,&nbsp;x=None,&nbsp;y=None,&nbsp;err=None)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Parameter&nbsp;values&nbsp;are&nbsp;passed&nbsp;in&nbsp;"p"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;If&nbsp;FJAC!=None&nbsp;then&nbsp;partial&nbsp;derivatives&nbsp;must&nbsp;be&nbsp;comptuer.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;FJAC&nbsp;contains&nbsp;an&nbsp;array&nbsp;of&nbsp;len(p),&nbsp;where&nbsp;each&nbsp;entry<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;is&nbsp;1&nbsp;if&nbsp;that&nbsp;parameter&nbsp;is&nbsp;free&nbsp;and&nbsp;0&nbsp;if&nbsp;it&nbsp;is&nbsp;fixed.&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;model&nbsp;=&nbsp;F(x,&nbsp;p)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Non-negative&nbsp;status&nbsp;value&nbsp;means&nbsp;MPFIT&nbsp;should&nbsp;continue,&nbsp;negative&nbsp;means<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stop&nbsp;the&nbsp;calculation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;status&nbsp;=&nbsp;0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(dojac):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pderiv&nbsp;=&nbsp;Numeric.zeros([len(x),&nbsp;len(p)],&nbsp;Numeric.Float)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;j&nbsp;in&nbsp;range(len(p)):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pderiv[:,j]&nbsp;=&nbsp;FGRAD(x,&nbsp;p,&nbsp;j)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pderiv&nbsp;=&nbsp;None<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return([status,&nbsp;(y-model)/err,&nbsp;pderiv]<br>
+&nbsp;<br>
+&nbsp;where&nbsp;FGRAD(x,&nbsp;p,&nbsp;i)&nbsp;is&nbsp;a&nbsp;user&nbsp;function&nbsp;which&nbsp;must&nbsp;compute&nbsp;the<br>
+&nbsp;derivative&nbsp;of&nbsp;the&nbsp;model&nbsp;with&nbsp;respect&nbsp;to&nbsp;parameter&nbsp;P[i]&nbsp;at&nbsp;X.&nbsp;&nbsp;When<br>
+&nbsp;finite&nbsp;differencing&nbsp;is&nbsp;used&nbsp;for&nbsp;computing&nbsp;derivatives&nbsp;(ie,&nbsp;when<br>
+&nbsp;AUTODERIVATIVE=1),&nbsp;or&nbsp;when&nbsp;MPFIT&nbsp;needs&nbsp;only&nbsp;the&nbsp;errors&nbsp;but&nbsp;not&nbsp;the<br>
+&nbsp;derivatives&nbsp;the&nbsp;parameter&nbsp;FJAC=None.&nbsp;&nbsp;<br>
+&nbsp;<br>
+&nbsp;Derivatives&nbsp;should&nbsp;be&nbsp;returned&nbsp;in&nbsp;the&nbsp;PDERIV&nbsp;array.&nbsp;PDERIV&nbsp;should&nbsp;be&nbsp;an&nbsp;m&nbsp;x<br>
+&nbsp;n&nbsp;array,&nbsp;where&nbsp;m&nbsp;is&nbsp;the&nbsp;number&nbsp;of&nbsp;data&nbsp;points&nbsp;and&nbsp;n&nbsp;is&nbsp;the&nbsp;number<br>
+&nbsp;of&nbsp;parameters.&nbsp;&nbsp;dp[i,j]&nbsp;is&nbsp;the&nbsp;derivative&nbsp;at&nbsp;the&nbsp;ith&nbsp;point&nbsp;with<br>
+&nbsp;respect&nbsp;to&nbsp;the&nbsp;jth&nbsp;parameter.&nbsp;&nbsp;<br>
+&nbsp;<br>
+&nbsp;The&nbsp;derivatives&nbsp;with&nbsp;respect&nbsp;to&nbsp;fixed&nbsp;parameters&nbsp;are&nbsp;ignored;&nbsp;zero<br>
+&nbsp;is&nbsp;an&nbsp;appropriate&nbsp;value&nbsp;to&nbsp;insert&nbsp;for&nbsp;those&nbsp;derivatives.&nbsp;&nbsp;Upon<br>
+&nbsp;input&nbsp;to&nbsp;the&nbsp;user&nbsp;function,&nbsp;FJAC&nbsp;is&nbsp;set&nbsp;to&nbsp;a&nbsp;vector&nbsp;with&nbsp;the&nbsp;same<br>
+&nbsp;length&nbsp;as&nbsp;P,&nbsp;with&nbsp;a&nbsp;value&nbsp;of&nbsp;1&nbsp;for&nbsp;a&nbsp;parameter&nbsp;which&nbsp;is&nbsp;free,&nbsp;and&nbsp;a<br>
+&nbsp;value&nbsp;of&nbsp;zero&nbsp;for&nbsp;a&nbsp;parameter&nbsp;which&nbsp;is&nbsp;fixed&nbsp;(and&nbsp;hence&nbsp;no<br>
+&nbsp;derivative&nbsp;needs&nbsp;to&nbsp;be&nbsp;calculated).<br>
+&nbsp;<br>
+&nbsp;If&nbsp;the&nbsp;data&nbsp;is&nbsp;higher&nbsp;than&nbsp;one&nbsp;dimensional,&nbsp;then&nbsp;the&nbsp;*last*<br>
+&nbsp;dimension&nbsp;should&nbsp;be&nbsp;the&nbsp;parameter&nbsp;dimension.&nbsp;&nbsp;Example:&nbsp;fitting&nbsp;a<br>
+&nbsp;50x50&nbsp;image,&nbsp;"dp"&nbsp;should&nbsp;be&nbsp;50x50xNPAR.<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONSTRAINING&nbsp;PARAMETER&nbsp;VALUES&nbsp;WITH&nbsp;THE&nbsp;PARINFO&nbsp;KEYWORD<br>
+&nbsp;<br>
+&nbsp;The&nbsp;behavior&nbsp;of&nbsp;MPFIT&nbsp;can&nbsp;be&nbsp;modified&nbsp;with&nbsp;respect&nbsp;to&nbsp;each<br>
+&nbsp;parameter&nbsp;to&nbsp;be&nbsp;fitted.&nbsp;&nbsp;A&nbsp;parameter&nbsp;value&nbsp;can&nbsp;be&nbsp;fixed;&nbsp;simple<br>
+&nbsp;boundary&nbsp;constraints&nbsp;can&nbsp;be&nbsp;imposed;&nbsp;limitations&nbsp;on&nbsp;the&nbsp;parameter<br>
+&nbsp;changes&nbsp;can&nbsp;be&nbsp;imposed;&nbsp;properties&nbsp;of&nbsp;the&nbsp;automatic&nbsp;derivative&nbsp;can<br>
+&nbsp;be&nbsp;modified;&nbsp;and&nbsp;parameters&nbsp;can&nbsp;be&nbsp;tied&nbsp;to&nbsp;one&nbsp;another.<br>
+&nbsp;<br>
+&nbsp;These&nbsp;properties&nbsp;are&nbsp;governed&nbsp;by&nbsp;the&nbsp;PARINFO&nbsp;structure,&nbsp;which&nbsp;is<br>
+&nbsp;passed&nbsp;as&nbsp;a&nbsp;keyword&nbsp;parameter&nbsp;to&nbsp;MPFIT.<br>
+&nbsp;<br>
+&nbsp;PARINFO&nbsp;should&nbsp;be&nbsp;a&nbsp;list&nbsp;of&nbsp;dictionaries,&nbsp;one&nbsp;list&nbsp;entry&nbsp;for&nbsp;each&nbsp;parameter.<br>
+&nbsp;Each&nbsp;parameter&nbsp;is&nbsp;associated&nbsp;with&nbsp;one&nbsp;element&nbsp;of&nbsp;the&nbsp;array,&nbsp;in<br>
+&nbsp;numerical&nbsp;order.&nbsp;&nbsp;The&nbsp;dictionary&nbsp;can&nbsp;have&nbsp;the&nbsp;following&nbsp;keys<br>
+&nbsp;(none&nbsp;are&nbsp;required,&nbsp;keys&nbsp;are&nbsp;case&nbsp;insensitive):<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'value'&nbsp;-&nbsp;the&nbsp;starting&nbsp;parameter&nbsp;value&nbsp;(but&nbsp;see&nbsp;the&nbsp;START_PARAMS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parameter&nbsp;for&nbsp;more&nbsp;information).<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'fixed'&nbsp;-&nbsp;a&nbsp;boolean&nbsp;value,&nbsp;whether&nbsp;the&nbsp;parameter&nbsp;is&nbsp;to&nbsp;be&nbsp;held<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fixed&nbsp;or&nbsp;not.&nbsp;&nbsp;Fixed&nbsp;parameters&nbsp;are&nbsp;not&nbsp;varied&nbsp;by<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MPFIT,&nbsp;but&nbsp;are&nbsp;passed&nbsp;on&nbsp;to&nbsp;MYFUNCT&nbsp;for&nbsp;evaluation.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'limited'&nbsp;-&nbsp;a&nbsp;two-element&nbsp;boolean&nbsp;array.&nbsp;&nbsp;If&nbsp;the&nbsp;first/second<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;element&nbsp;is&nbsp;set,&nbsp;then&nbsp;the&nbsp;parameter&nbsp;is&nbsp;bounded&nbsp;on&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lower/upper&nbsp;side.&nbsp;&nbsp;A&nbsp;parameter&nbsp;can&nbsp;be&nbsp;bounded&nbsp;on&nbsp;both<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sides.&nbsp;&nbsp;Both&nbsp;LIMITED&nbsp;and&nbsp;LIMITS&nbsp;must&nbsp;be&nbsp;given<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;together.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'limits'&nbsp;-&nbsp;a&nbsp;two-element&nbsp;float&nbsp;array.&nbsp;&nbsp;Gives&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parameter&nbsp;limits&nbsp;on&nbsp;the&nbsp;lower&nbsp;and&nbsp;upper&nbsp;sides,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;respectively.&nbsp;&nbsp;Zero,&nbsp;one&nbsp;or&nbsp;two&nbsp;of&nbsp;these&nbsp;values&nbsp;can&nbsp;be<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set,&nbsp;depending&nbsp;on&nbsp;the&nbsp;values&nbsp;of&nbsp;LIMITED.&nbsp;&nbsp;Both&nbsp;LIMITED<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;LIMITS&nbsp;must&nbsp;be&nbsp;given&nbsp;together.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'parname'&nbsp;-&nbsp;a&nbsp;string,&nbsp;giving&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;parameter.&nbsp;&nbsp;The<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fitting&nbsp;code&nbsp;of&nbsp;MPFIT&nbsp;does&nbsp;not&nbsp;use&nbsp;this&nbsp;tag&nbsp;in&nbsp;any<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;way.&nbsp;&nbsp;However,&nbsp;the&nbsp;default&nbsp;iterfunct&nbsp;will&nbsp;print&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parameter&nbsp;name&nbsp;if&nbsp;available.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'step'&nbsp;-&nbsp;the&nbsp;step&nbsp;size&nbsp;to&nbsp;be&nbsp;used&nbsp;in&nbsp;calculating&nbsp;the&nbsp;numerical<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;derivatives.&nbsp;&nbsp;If&nbsp;set&nbsp;to&nbsp;zero,&nbsp;then&nbsp;the&nbsp;step&nbsp;size&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;computed&nbsp;automatically.&nbsp;&nbsp;Ignored&nbsp;when&nbsp;AUTODERIVATIVE=0.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'mpside'&nbsp;-&nbsp;the&nbsp;sidedness&nbsp;of&nbsp;the&nbsp;finite&nbsp;difference&nbsp;when&nbsp;computing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numerical&nbsp;derivatives.&nbsp;&nbsp;This&nbsp;field&nbsp;can&nbsp;take&nbsp;four<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;values:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;-&nbsp;one-sided&nbsp;derivative&nbsp;computed&nbsp;automatically<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;-&nbsp;one-sided&nbsp;derivative&nbsp;(f(x+h)&nbsp;-&nbsp;f(x)&nbsp;&nbsp;)/h<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-1&nbsp;-&nbsp;one-sided&nbsp;derivative&nbsp;(f(x)&nbsp;&nbsp;&nbsp;-&nbsp;f(x-h))/h<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;-&nbsp;two-sided&nbsp;derivative&nbsp;(f(x+h)&nbsp;-&nbsp;f(x-h))/(2*h)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Where&nbsp;H&nbsp;is&nbsp;the&nbsp;STEP&nbsp;parameter&nbsp;described&nbsp;above.&nbsp;&nbsp;The<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"automatic"&nbsp;one-sided&nbsp;derivative&nbsp;method&nbsp;will&nbsp;chose&nbsp;a<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;direction&nbsp;for&nbsp;the&nbsp;finite&nbsp;difference&nbsp;which&nbsp;does&nbsp;not<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;violate&nbsp;any&nbsp;constraints.&nbsp;&nbsp;The&nbsp;other&nbsp;methods&nbsp;do&nbsp;not<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;perform&nbsp;this&nbsp;check.&nbsp;&nbsp;The&nbsp;two-sided&nbsp;method&nbsp;is&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;principle&nbsp;more&nbsp;precise,&nbsp;but&nbsp;requires&nbsp;twice&nbsp;as&nbsp;many<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;evaluations.&nbsp;&nbsp;Default:&nbsp;0.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'mpmaxstep'&nbsp;-&nbsp;the&nbsp;maximum&nbsp;change&nbsp;to&nbsp;be&nbsp;made&nbsp;in&nbsp;the&nbsp;parameter<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value.&nbsp;&nbsp;During&nbsp;the&nbsp;fitting&nbsp;process,&nbsp;the&nbsp;parameter<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;will&nbsp;never&nbsp;be&nbsp;changed&nbsp;by&nbsp;more&nbsp;than&nbsp;this&nbsp;value&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;one&nbsp;iteration.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;value&nbsp;of&nbsp;0&nbsp;indicates&nbsp;no&nbsp;maximum.&nbsp;&nbsp;Default:&nbsp;0.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'tied'&nbsp;-&nbsp;a&nbsp;string&nbsp;expression&nbsp;which&nbsp;"ties"&nbsp;the&nbsp;parameter&nbsp;to&nbsp;other<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;free&nbsp;or&nbsp;fixed&nbsp;parameters.&nbsp;&nbsp;Any&nbsp;expression&nbsp;involving<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constants&nbsp;and&nbsp;the&nbsp;parameter&nbsp;array&nbsp;P&nbsp;are&nbsp;permitted.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Example:&nbsp;if&nbsp;parameter&nbsp;2&nbsp;is&nbsp;always&nbsp;to&nbsp;be&nbsp;twice&nbsp;parameter<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;then&nbsp;use&nbsp;the&nbsp;following:&nbsp;parinfo(2).tied&nbsp;=&nbsp;'2&nbsp;*&nbsp;p(1)'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Since&nbsp;they&nbsp;are&nbsp;totally&nbsp;constrained,&nbsp;tied&nbsp;parameters&nbsp;are<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;considered&nbsp;to&nbsp;be&nbsp;fixed;&nbsp;no&nbsp;errors&nbsp;are&nbsp;computed&nbsp;for&nbsp;them.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;NOTE:&nbsp;the&nbsp;PARNAME&nbsp;can't&nbsp;be&nbsp;used&nbsp;in&nbsp;expressions.&nbsp;]<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'mpprint'&nbsp;-&nbsp;if&nbsp;set&nbsp;to&nbsp;1,&nbsp;then&nbsp;the&nbsp;default&nbsp;iterfunct&nbsp;will&nbsp;print&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parameter&nbsp;value.&nbsp;&nbsp;If&nbsp;set&nbsp;to&nbsp;0,&nbsp;the&nbsp;parameter&nbsp;value<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;will&nbsp;not&nbsp;be&nbsp;printed.&nbsp;&nbsp;This&nbsp;tag&nbsp;can&nbsp;be&nbsp;used&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selectively&nbsp;print&nbsp;only&nbsp;a&nbsp;few&nbsp;parameter&nbsp;values&nbsp;out&nbsp;of<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;many.&nbsp;&nbsp;Default:&nbsp;1&nbsp;(all&nbsp;parameters&nbsp;printed)<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;Future&nbsp;modifications&nbsp;to&nbsp;the&nbsp;PARINFO&nbsp;structure,&nbsp;if&nbsp;any,&nbsp;will&nbsp;involve<br>
+&nbsp;adding&nbsp;dictionary&nbsp;tags&nbsp;beginning&nbsp;with&nbsp;the&nbsp;two&nbsp;letters&nbsp;"MP".<br>
+&nbsp;Therefore&nbsp;programmers&nbsp;are&nbsp;urged&nbsp;to&nbsp;avoid&nbsp;using&nbsp;tags&nbsp;starting&nbsp;with<br>
+&nbsp;the&nbsp;same&nbsp;letters;&nbsp;otherwise&nbsp;they&nbsp;are&nbsp;free&nbsp;to&nbsp;include&nbsp;their&nbsp;own<br>
+&nbsp;fields&nbsp;within&nbsp;the&nbsp;PARINFO&nbsp;structure,&nbsp;and&nbsp;they&nbsp;will&nbsp;be&nbsp;ignored.<br>
+&nbsp;<br>
+&nbsp;PARINFO&nbsp;Example:<br>
+&nbsp;parinfo&nbsp;=&nbsp;[{'value':0.,&nbsp;'fixed':0,&nbsp;'limited':[0,0],&nbsp;'limits':[0.,0.]}]*5<br>
+&nbsp;parinfo[0]['fixed']&nbsp;=&nbsp;1<br>
+&nbsp;parinfo[4]['limited'][0]&nbsp;=&nbsp;1<br>
+&nbsp;parinfo[4]['limits'][0]&nbsp;&nbsp;=&nbsp;50.<br>
+&nbsp;values&nbsp;=&nbsp;[5.7,&nbsp;2.2,&nbsp;500.,&nbsp;1.5,&nbsp;2000.]<br>
+&nbsp;for&nbsp;i&nbsp;in&nbsp;range(5):&nbsp;parinfo[i]['value']=values[i]<br>
+&nbsp;<br>
+&nbsp;A&nbsp;total&nbsp;of&nbsp;5&nbsp;parameters,&nbsp;with&nbsp;starting&nbsp;values&nbsp;of&nbsp;5.7,<br>
+&nbsp;2.2,&nbsp;500,&nbsp;1.5,&nbsp;and&nbsp;2000&nbsp;are&nbsp;given.&nbsp;&nbsp;The&nbsp;first&nbsp;parameter<br>
+&nbsp;is&nbsp;fixed&nbsp;at&nbsp;a&nbsp;value&nbsp;of&nbsp;5.7,&nbsp;and&nbsp;the&nbsp;last&nbsp;parameter&nbsp;is<br>
+&nbsp;constrained&nbsp;to&nbsp;be&nbsp;above&nbsp;50.<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXAMPLE<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;import&nbsp;<a href="#mpfit">mpfit</a><br>
+&nbsp;&nbsp;&nbsp;import&nbsp;Numeric<br>
+&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;Numeric.arange(100,&nbsp;Numeric.float)<br>
+&nbsp;&nbsp;&nbsp;p0&nbsp;=&nbsp;[5.7,&nbsp;2.2,&nbsp;500.,&nbsp;1.5,&nbsp;2000.]<br>
+&nbsp;&nbsp;&nbsp;y&nbsp;=&nbsp;(&nbsp;p[0]&nbsp;+&nbsp;p[1]*[x]&nbsp;+&nbsp;p[2]*[x**2]&nbsp;+&nbsp;p[3]*Numeric.sqrt(x)&nbsp;+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p[4]*Numeric.log(x))<br>
+&nbsp;&nbsp;&nbsp;fa&nbsp;=&nbsp;{'x':x,&nbsp;'y':y,&nbsp;'err':err}<br>
+&nbsp;&nbsp;&nbsp;m&nbsp;=&nbsp;<a href="#mpfit">mpfit</a>('myfunct',&nbsp;p0,&nbsp;functkw=fa)<br>
+&nbsp;&nbsp;&nbsp;print&nbsp;'status&nbsp;=&nbsp;',&nbsp;m.status<br>
+&nbsp;&nbsp;&nbsp;if&nbsp;(m.status&nbsp;&lt;=&nbsp;0):&nbsp;print&nbsp;'error&nbsp;message&nbsp;=&nbsp;',&nbsp;m.errmsg<br>
+&nbsp;&nbsp;&nbsp;print&nbsp;'parameters&nbsp;=&nbsp;',&nbsp;m.params<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;Minimizes&nbsp;sum&nbsp;of&nbsp;squares&nbsp;of&nbsp;MYFUNCT.&nbsp;&nbsp;MYFUNCT&nbsp;is&nbsp;called&nbsp;with&nbsp;the&nbsp;X,<br>
+&nbsp;&nbsp;&nbsp;Y,&nbsp;and&nbsp;ERR&nbsp;keyword&nbsp;parameters&nbsp;that&nbsp;are&nbsp;given&nbsp;by&nbsp;FUNCTKW.&nbsp;&nbsp;The<br>
+&nbsp;&nbsp;&nbsp;results&nbsp;can&nbsp;be&nbsp;obtained&nbsp;from&nbsp;the&nbsp;returned&nbsp;object&nbsp;m.<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;THEORY&nbsp;OF&nbsp;OPERATION<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;There&nbsp;are&nbsp;many&nbsp;specific&nbsp;strategies&nbsp;for&nbsp;function&nbsp;minimization.&nbsp;&nbsp;One<br>
+&nbsp;&nbsp;&nbsp;very&nbsp;popular&nbsp;technique&nbsp;is&nbsp;to&nbsp;use&nbsp;function&nbsp;gradient&nbsp;information&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;realize&nbsp;the&nbsp;local&nbsp;structure&nbsp;of&nbsp;the&nbsp;function.&nbsp;&nbsp;Near&nbsp;a&nbsp;local&nbsp;minimum<br>
+&nbsp;&nbsp;&nbsp;the&nbsp;function&nbsp;value&nbsp;can&nbsp;be&nbsp;taylor&nbsp;expanded&nbsp;about&nbsp;x0&nbsp;as&nbsp;follows:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f(x)&nbsp;=&nbsp;f(x0)&nbsp;+&nbsp;f'(x0)&nbsp;.&nbsp;(x-x0)&nbsp;+&nbsp;(1/2)&nbsp;(x-x0)&nbsp;.&nbsp;f''(x0)&nbsp;.&nbsp;(x-x0)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-----&nbsp;&nbsp;&nbsp;---------------&nbsp;&nbsp;&nbsp;-------------------------------&nbsp;&nbsp;(1)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Order&nbsp;&nbsp;&nbsp;&nbsp;0th&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1st&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2nd<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;Here&nbsp;f'(x)&nbsp;is&nbsp;the&nbsp;gradient&nbsp;vector&nbsp;of&nbsp;f&nbsp;at&nbsp;x,&nbsp;and&nbsp;f''(x)&nbsp;is&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;Hessian&nbsp;matrix&nbsp;of&nbsp;second&nbsp;derivatives&nbsp;of&nbsp;f&nbsp;at&nbsp;x.&nbsp;&nbsp;The&nbsp;vector&nbsp;x&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;the&nbsp;set&nbsp;of&nbsp;function&nbsp;parameters,&nbsp;not&nbsp;the&nbsp;measured&nbsp;data&nbsp;vector.&nbsp;&nbsp;One<br>
+&nbsp;&nbsp;&nbsp;can&nbsp;find&nbsp;the&nbsp;minimum&nbsp;of&nbsp;f,&nbsp;f(xm)&nbsp;using&nbsp;Newton's&nbsp;method,&nbsp;and<br>
+&nbsp;&nbsp;&nbsp;arrives&nbsp;at&nbsp;the&nbsp;following&nbsp;linear&nbsp;equation:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f''(x0)&nbsp;.&nbsp;(xm-x0)&nbsp;=&nbsp;-&nbsp;f'(x0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;an&nbsp;inverse&nbsp;can&nbsp;be&nbsp;found&nbsp;for&nbsp;f''(x0)&nbsp;then&nbsp;one&nbsp;can&nbsp;solve&nbsp;for<br>
+&nbsp;&nbsp;&nbsp;(xm-x0),&nbsp;the&nbsp;step&nbsp;vector&nbsp;from&nbsp;the&nbsp;current&nbsp;position&nbsp;x0&nbsp;to&nbsp;the&nbsp;new<br>
+&nbsp;&nbsp;&nbsp;projected&nbsp;minimum.&nbsp;&nbsp;Here&nbsp;the&nbsp;problem&nbsp;has&nbsp;been&nbsp;linearized&nbsp;(ie,&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;gradient&nbsp;information&nbsp;is&nbsp;known&nbsp;to&nbsp;first&nbsp;order).&nbsp;&nbsp;f''(x0)&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;symmetric&nbsp;n&nbsp;x&nbsp;n&nbsp;matrix,&nbsp;and&nbsp;should&nbsp;be&nbsp;positive&nbsp;definite.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;The&nbsp;Levenberg&nbsp;-&nbsp;Marquardt&nbsp;technique&nbsp;is&nbsp;a&nbsp;variation&nbsp;on&nbsp;this&nbsp;theme.<br>
+&nbsp;&nbsp;&nbsp;It&nbsp;adds&nbsp;an&nbsp;additional&nbsp;diagonal&nbsp;term&nbsp;to&nbsp;the&nbsp;equation&nbsp;which&nbsp;may&nbsp;aid&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;convergence&nbsp;properties:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(f''(x0)&nbsp;+&nbsp;nu&nbsp;I)&nbsp;.&nbsp;(xm-x0)&nbsp;=&nbsp;-f'(x0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2a)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;where&nbsp;I&nbsp;is&nbsp;the&nbsp;identity&nbsp;matrix.&nbsp;&nbsp;When&nbsp;nu&nbsp;is&nbsp;large,&nbsp;the&nbsp;overall<br>
+&nbsp;&nbsp;&nbsp;matrix&nbsp;is&nbsp;diagonally&nbsp;dominant,&nbsp;and&nbsp;the&nbsp;iterations&nbsp;follow&nbsp;steepest<br>
+&nbsp;&nbsp;&nbsp;descent.&nbsp;&nbsp;When&nbsp;nu&nbsp;is&nbsp;small,&nbsp;the&nbsp;iterations&nbsp;are&nbsp;quadratically<br>
+&nbsp;&nbsp;&nbsp;convergent.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;In&nbsp;principle,&nbsp;if&nbsp;f''(x0)&nbsp;and&nbsp;f'(x0)&nbsp;are&nbsp;known&nbsp;then&nbsp;xm-x0&nbsp;can&nbsp;be<br>
+&nbsp;&nbsp;&nbsp;determined.&nbsp;&nbsp;However&nbsp;the&nbsp;Hessian&nbsp;matrix&nbsp;is&nbsp;often&nbsp;difficult&nbsp;or<br>
+&nbsp;&nbsp;&nbsp;impossible&nbsp;to&nbsp;compute.&nbsp;&nbsp;The&nbsp;gradient&nbsp;f'(x0)&nbsp;may&nbsp;be&nbsp;easier&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;compute,&nbsp;if&nbsp;even&nbsp;by&nbsp;finite&nbsp;difference&nbsp;techniques.&nbsp;&nbsp;So-called<br>
+&nbsp;&nbsp;&nbsp;quasi-Newton&nbsp;techniques&nbsp;attempt&nbsp;to&nbsp;successively&nbsp;estimate&nbsp;f''(x0)<br>
+&nbsp;&nbsp;&nbsp;by&nbsp;building&nbsp;up&nbsp;gradient&nbsp;information&nbsp;as&nbsp;the&nbsp;iterations&nbsp;proceed.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;In&nbsp;the&nbsp;least&nbsp;squares&nbsp;problem&nbsp;there&nbsp;are&nbsp;further&nbsp;simplifications<br>
+&nbsp;&nbsp;&nbsp;which&nbsp;assist&nbsp;in&nbsp;solving&nbsp;eqn&nbsp;(2).&nbsp;&nbsp;The&nbsp;function&nbsp;to&nbsp;be&nbsp;minimized&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;a&nbsp;sum&nbsp;of&nbsp;squares:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f&nbsp;=&nbsp;Sum(hi^2)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;where&nbsp;hi&nbsp;is&nbsp;the&nbsp;ith&nbsp;residual&nbsp;out&nbsp;of&nbsp;m&nbsp;residuals&nbsp;as&nbsp;described<br>
+&nbsp;&nbsp;&nbsp;above.&nbsp;&nbsp;This&nbsp;can&nbsp;be&nbsp;substituted&nbsp;back&nbsp;into&nbsp;eqn&nbsp;(2)&nbsp;after&nbsp;computing<br>
+&nbsp;&nbsp;&nbsp;the&nbsp;derivatives:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f'&nbsp;&nbsp;=&nbsp;2&nbsp;Sum(hi&nbsp;&nbsp;hi')&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f''&nbsp;=&nbsp;2&nbsp;Sum(hi'&nbsp;hj')&nbsp;+&nbsp;2&nbsp;Sum(hi&nbsp;hi'')&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(4)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;one&nbsp;assumes&nbsp;that&nbsp;the&nbsp;parameters&nbsp;are&nbsp;already&nbsp;close&nbsp;enough&nbsp;to&nbsp;a<br>
+&nbsp;&nbsp;&nbsp;minimum,&nbsp;then&nbsp;one&nbsp;typically&nbsp;finds&nbsp;that&nbsp;the&nbsp;second&nbsp;term&nbsp;in&nbsp;f''&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;negligible&nbsp;[or,&nbsp;in&nbsp;any&nbsp;case,&nbsp;is&nbsp;too&nbsp;difficult&nbsp;to&nbsp;compute].&nbsp;&nbsp;Thus,<br>
+&nbsp;&nbsp;&nbsp;equation&nbsp;(2)&nbsp;can&nbsp;be&nbsp;solved,&nbsp;at&nbsp;least&nbsp;approximately,&nbsp;using&nbsp;only<br>
+&nbsp;&nbsp;&nbsp;gradient&nbsp;information.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;In&nbsp;matrix&nbsp;notation,&nbsp;the&nbsp;combination&nbsp;of&nbsp;eqns&nbsp;(2)&nbsp;and&nbsp;(4)&nbsp;becomes:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hT'&nbsp;.&nbsp;h'&nbsp;.&nbsp;dx&nbsp;=&nbsp;-&nbsp;hT'&nbsp;.&nbsp;h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(5)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;Where&nbsp;h&nbsp;is&nbsp;the&nbsp;residual&nbsp;vector&nbsp;(length&nbsp;m),&nbsp;hT&nbsp;is&nbsp;its&nbsp;transpose,&nbsp;h'<br>
+&nbsp;&nbsp;&nbsp;is&nbsp;the&nbsp;Jacobian&nbsp;matrix&nbsp;(dimensions&nbsp;n&nbsp;x&nbsp;m),&nbsp;and&nbsp;dx&nbsp;is&nbsp;(xm-x0).&nbsp;&nbsp;The<br>
+&nbsp;&nbsp;&nbsp;user&nbsp;function&nbsp;supplies&nbsp;the&nbsp;residual&nbsp;vector&nbsp;h,&nbsp;and&nbsp;in&nbsp;some&nbsp;cases&nbsp;h'<br>
+&nbsp;&nbsp;&nbsp;when&nbsp;it&nbsp;is&nbsp;not&nbsp;found&nbsp;by&nbsp;finite&nbsp;differences&nbsp;(see&nbsp;MPFIT_FDJAC2,<br>
+&nbsp;&nbsp;&nbsp;which&nbsp;finds&nbsp;h&nbsp;and&nbsp;hT').&nbsp;&nbsp;Even&nbsp;if&nbsp;dx&nbsp;is&nbsp;not&nbsp;the&nbsp;best&nbsp;absolute&nbsp;step<br>
+&nbsp;&nbsp;&nbsp;to&nbsp;take,&nbsp;it&nbsp;does&nbsp;provide&nbsp;a&nbsp;good&nbsp;estimate&nbsp;of&nbsp;the&nbsp;best&nbsp;*direction*,<br>
+&nbsp;&nbsp;&nbsp;so&nbsp;often&nbsp;a&nbsp;line&nbsp;minimization&nbsp;will&nbsp;occur&nbsp;along&nbsp;the&nbsp;dx&nbsp;vector<br>
+&nbsp;&nbsp;&nbsp;direction.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;The&nbsp;method&nbsp;of&nbsp;solution&nbsp;employed&nbsp;by&nbsp;MINPACK&nbsp;is&nbsp;to&nbsp;form&nbsp;the&nbsp;Q&nbsp;.&nbsp;R<br>
+&nbsp;&nbsp;&nbsp;factorization&nbsp;of&nbsp;h',&nbsp;where&nbsp;Q&nbsp;is&nbsp;an&nbsp;orthogonal&nbsp;matrix&nbsp;such&nbsp;that&nbsp;QT&nbsp;.<br>
+&nbsp;&nbsp;&nbsp;Q&nbsp;=&nbsp;I,&nbsp;and&nbsp;R&nbsp;is&nbsp;upper&nbsp;right&nbsp;triangular.&nbsp;&nbsp;Using&nbsp;h'&nbsp;=&nbsp;Q&nbsp;.&nbsp;R&nbsp;and&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;ortogonality&nbsp;of&nbsp;Q,&nbsp;eqn&nbsp;(5)&nbsp;becomes<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(RT&nbsp;.&nbsp;QT)&nbsp;.&nbsp;(Q&nbsp;.&nbsp;R)&nbsp;.&nbsp;dx&nbsp;=&nbsp;-&nbsp;(RT&nbsp;.&nbsp;QT)&nbsp;.&nbsp;h<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RT&nbsp;.&nbsp;R&nbsp;.&nbsp;dx&nbsp;=&nbsp;-&nbsp;RT&nbsp;.&nbsp;QT&nbsp;.&nbsp;h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(6)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R&nbsp;.&nbsp;dx&nbsp;=&nbsp;-&nbsp;QT&nbsp;.&nbsp;h<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;where&nbsp;the&nbsp;last&nbsp;statement&nbsp;follows&nbsp;because&nbsp;R&nbsp;is&nbsp;upper&nbsp;triangular.<br>
+&nbsp;&nbsp;&nbsp;Here,&nbsp;R,&nbsp;QT&nbsp;and&nbsp;h&nbsp;are&nbsp;known&nbsp;so&nbsp;this&nbsp;is&nbsp;a&nbsp;matter&nbsp;of&nbsp;solving&nbsp;for&nbsp;dx.<br>
+&nbsp;&nbsp;&nbsp;The&nbsp;routine&nbsp;MPFIT_QRFAC&nbsp;provides&nbsp;the&nbsp;QR&nbsp;factorization&nbsp;of&nbsp;h,&nbsp;with<br>
+&nbsp;&nbsp;&nbsp;pivoting,&nbsp;and&nbsp;MPFIT_QRSOLV&nbsp;provides&nbsp;the&nbsp;solution&nbsp;for&nbsp;dx.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REFERENCES<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;MINPACK-1,&nbsp;Jorge&nbsp;More',&nbsp;available&nbsp;from&nbsp;netlib&nbsp;(www.netlib.org).<br>
+&nbsp;&nbsp;&nbsp;"Optimization&nbsp;Software&nbsp;Guide,"&nbsp;Jorge&nbsp;More'&nbsp;and&nbsp;Stephen&nbsp;Wright,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SIAM,&nbsp;*Frontiers&nbsp;in&nbsp;Applied&nbsp;Mathematics*,&nbsp;Number&nbsp;14.<br>
+&nbsp;&nbsp;&nbsp;More',&nbsp;Jorge&nbsp;J.,&nbsp;"The&nbsp;Levenberg-Marquardt&nbsp;Algorithm:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Implementation&nbsp;and&nbsp;Theory,"&nbsp;in&nbsp;*Numerical&nbsp;Analysis*,&nbsp;ed.&nbsp;Watson,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G.&nbsp;A.,&nbsp;Lecture&nbsp;Notes&nbsp;in&nbsp;Mathematics&nbsp;630,&nbsp;Springer-Verlag,&nbsp;1977.<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFICATION&nbsp;HISTORY<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;Translated&nbsp;from&nbsp;MINPACK-1&nbsp;in&nbsp;FORTRAN,&nbsp;Apr-Jul&nbsp;1998,&nbsp;CM<br>
+&nbsp;Copyright&nbsp;(C)&nbsp;1997-2002,&nbsp;Craig&nbsp;Markwardt<br>
+&nbsp;This&nbsp;software&nbsp;is&nbsp;provided&nbsp;as&nbsp;is&nbsp;without&nbsp;any&nbsp;warranty&nbsp;whatsoever.<br>
+&nbsp;Permission&nbsp;to&nbsp;use,&nbsp;copy,&nbsp;modify,&nbsp;and&nbsp;distribute&nbsp;modified&nbsp;or<br>
+&nbsp;unmodified&nbsp;copies&nbsp;is&nbsp;granted,&nbsp;provided&nbsp;this&nbsp;copyright&nbsp;and&nbsp;disclaimer<br>
+&nbsp;are&nbsp;included&nbsp;unchanged.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;Translated&nbsp;from&nbsp;MPFIT&nbsp;(Craig&nbsp;Markwardt's&nbsp;IDL&nbsp;package)&nbsp;to&nbsp;Python,<br>
+&nbsp;&nbsp;&nbsp;August,&nbsp;2002.&nbsp;&nbsp;Mark&nbsp;Rivers</tt></p>
+
+<table summary="section" border="0" cellpadding="2" cellspacing="0" width="100%">
+<tbody><tr bgcolor="#aa55cc">
+<td colspan="3" valign="bottom">&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><table summary="list" width="100%"><tbody><tr><td valign="top" width="25%"><a href="http://cars9.uchicago.edu/software/python/Numeric.html">Numeric</a><br>
+</td><td valign="top" width="25%"><a href="http://cars9.uchicago.edu/software/python/types.html">types</a><br>
+</td><td valign="top" width="25%"></td><td valign="top" width="25%"></td></tr></tbody></table></td></tr></tbody></table>
+<table summary="section" border="0" cellpadding="2" cellspacing="0" width="100%">
+<tbody><tr bgcolor="#ee77aa">
+<td colspan="3" valign="bottom">&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="http://cars9.uchicago.edu/software/python/mpfit.html#machar">machar</a>
+</font></dt><dt><font face="helvetica, arial"><a href="http://cars9.uchicago.edu/software/python/mpfit.html#mpfit">mpfit</a>
+</font></dt></dl>
+ 
+<table summary="section" border="0" cellpadding="2" cellspacing="0" width="100%">
+<tbody><tr bgcolor="#ffc8d8">
+<td colspan="3" valign="bottom">&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="machar">class <strong>machar</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan="2"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan="2">&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="machar-__init__"><strong>__init__</strong></a>(self, double<font color="#909090">=1</font>)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dt></dl>
+
+<dl><dt><strong>__module__</strong> = 'mpfit'</dt><dd><tt>str(object)&nbsp;-&gt;&nbsp;string<br>
+&nbsp;<br>
+Return&nbsp;a&nbsp;nice&nbsp;string&nbsp;representation&nbsp;of&nbsp;the&nbsp;object.<br>
+If&nbsp;the&nbsp;argument&nbsp;is&nbsp;a&nbsp;string,&nbsp;the&nbsp;return&nbsp;value&nbsp;is&nbsp;the&nbsp;same&nbsp;object.</tt></dd></dl>
+
+</td></tr></tbody></table> 
+<table summary="section" border="0" cellpadding="2" cellspacing="0" width="100%">
+<tbody><tr bgcolor="#ffc8d8">
+<td colspan="3" valign="bottom">&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="mpfit">class <strong>mpfit</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan="2"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan="2">&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="mpfit-__init__"><strong>__init__</strong></a>(self, fcn, xall<font color="#909090">=None</font>, functkw<font color="#909090">={}</font>, parinfo<font color="#909090">=None</font>, ftol<font color="#909090">=1e-10</font>, xtol<font color="#909090">=1e-10</font>, gtol<font color="#909090">=1e-10</font>, damp<font color="#909090">=0.0</font>, maxiter<font color="#909090">=200</font>, factor<font color="#909090">=100.0</font>, nprint<font color="#909090">=1</font>, iterfunct<font color="#909090">='default'</font>, iterkw<font color="#909090">={}</font>, nocovar<font color="#909090">=0</font>, fastnorm<font color="#909090">=0</font>, rescale<font color="#909090">=0</font>, autoderivative<font color="#909090">=1</font>, quiet<font color="#909090">=0</font>, diag<font color="#909090">=None</font>, epsfcn<font color="#909090">=None</font>, debug<font color="#909090">=0</font>)</dt><dd><tt>Inputs:<br>
+&nbsp;&nbsp;fcn:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;function&nbsp;to&nbsp;be&nbsp;minimized.&nbsp;&nbsp;The&nbsp;function&nbsp;should&nbsp;return&nbsp;the&nbsp;weighted<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deviations&nbsp;between&nbsp;the&nbsp;model&nbsp;and&nbsp;the&nbsp;data,&nbsp;as&nbsp;described&nbsp;above.<br>
+&nbsp;<br>
+&nbsp;&nbsp;xall:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An&nbsp;array&nbsp;of&nbsp;starting&nbsp;values&nbsp;for&nbsp;each&nbsp;of&nbsp;the&nbsp;parameters&nbsp;of&nbsp;the&nbsp;model.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;number&nbsp;of&nbsp;parameters&nbsp;should&nbsp;be&nbsp;fewer&nbsp;than&nbsp;the&nbsp;number&nbsp;of&nbsp;measurements.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;parameter&nbsp;is&nbsp;optional&nbsp;if&nbsp;the&nbsp;parinfo&nbsp;keyword&nbsp;is&nbsp;used&nbsp;(but&nbsp;see<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parinfo).&nbsp;&nbsp;The&nbsp;parinfo&nbsp;keyword&nbsp;provides&nbsp;a&nbsp;mechanism&nbsp;to&nbsp;fix&nbsp;or&nbsp;constrain<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;individual&nbsp;parameters.&nbsp;&nbsp;<br>
+&nbsp;<br>
+Keywords:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;autoderivative:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;this&nbsp;is&nbsp;set,&nbsp;derivatives&nbsp;of&nbsp;the&nbsp;function&nbsp;will&nbsp;be&nbsp;computed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;automatically&nbsp;via&nbsp;a&nbsp;finite&nbsp;differencing&nbsp;procedure.&nbsp;&nbsp;If&nbsp;not&nbsp;set,&nbsp;then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fcn&nbsp;must&nbsp;provide&nbsp;the&nbsp;(analytical)&nbsp;derivatives.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;set&nbsp;(=1)&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOTE:&nbsp;to&nbsp;supply&nbsp;your&nbsp;own&nbsp;analytical&nbsp;derivatives,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;explicitly&nbsp;pass&nbsp;autoderivative=0<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;fastnorm:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set&nbsp;this&nbsp;keyword&nbsp;to&nbsp;select&nbsp;a&nbsp;faster&nbsp;algorithm&nbsp;to&nbsp;compute&nbsp;sum-of-square<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;values&nbsp;internally.&nbsp;&nbsp;For&nbsp;systems&nbsp;with&nbsp;large&nbsp;numbers&nbsp;of&nbsp;data&nbsp;points,&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;standard&nbsp;algorithm&nbsp;can&nbsp;become&nbsp;prohibitively&nbsp;slow&nbsp;because&nbsp;it&nbsp;cannot&nbsp;be<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vectorized&nbsp;well.&nbsp;&nbsp;By&nbsp;setting&nbsp;this&nbsp;keyword,&nbsp;MPFIT&nbsp;will&nbsp;run&nbsp;faster,&nbsp;but<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;it&nbsp;will&nbsp;be&nbsp;more&nbsp;prone&nbsp;to&nbsp;floating&nbsp;point&nbsp;overflows&nbsp;and&nbsp;underflows.&nbsp;&nbsp;Thus,&nbsp;setting<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this&nbsp;keyword&nbsp;may&nbsp;sacrifice&nbsp;some&nbsp;stability&nbsp;in&nbsp;the&nbsp;fitting&nbsp;process.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;clear&nbsp;(=0)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;ftol:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;nonnegative&nbsp;input&nbsp;variable.&nbsp;Termination&nbsp;occurs&nbsp;when&nbsp;both&nbsp;the&nbsp;actual<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;predicted&nbsp;relative&nbsp;reductions&nbsp;in&nbsp;the&nbsp;sum&nbsp;of&nbsp;squares&nbsp;are&nbsp;at&nbsp;most<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ftol&nbsp;(and&nbsp;status&nbsp;is&nbsp;accordingly&nbsp;set&nbsp;to&nbsp;1&nbsp;or&nbsp;3).&nbsp;&nbsp;Therefore,&nbsp;ftol<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;measures&nbsp;the&nbsp;relative&nbsp;error&nbsp;desired&nbsp;in&nbsp;the&nbsp;sum&nbsp;of&nbsp;squares.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;1E-10<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;functkw:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;dictionary&nbsp;which&nbsp;contains&nbsp;the&nbsp;parameters&nbsp;to&nbsp;be&nbsp;passed&nbsp;to&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user-supplied&nbsp;function&nbsp;specified&nbsp;by&nbsp;fcn&nbsp;via&nbsp;the&nbsp;standard&nbsp;Python<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keyword&nbsp;dictionary&nbsp;mechanism.&nbsp;&nbsp;This&nbsp;is&nbsp;the&nbsp;way&nbsp;you&nbsp;can&nbsp;pass&nbsp;additional<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data&nbsp;to&nbsp;your&nbsp;user-supplied&nbsp;function&nbsp;without&nbsp;using&nbsp;global&nbsp;variables.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Consider&nbsp;the&nbsp;following&nbsp;example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;functkw&nbsp;=&nbsp;{'xval':[1.,2.,3.],&nbsp;'yval':[1.,4.,9.],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'errval':[1.,1.,1.]&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;then&nbsp;the&nbsp;user&nbsp;supplied&nbsp;function&nbsp;should&nbsp;be&nbsp;declared&nbsp;like&nbsp;this:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;myfunct(p,&nbsp;fjac=None,&nbsp;xval=None,&nbsp;yval=None,&nbsp;errval=None):<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;{}&nbsp;&nbsp;&nbsp;No&nbsp;extra&nbsp;parameters&nbsp;are&nbsp;passed&nbsp;to&nbsp;the&nbsp;user-supplied<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function.&nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;gtol:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;nonnegative&nbsp;input&nbsp;variable.&nbsp;Termination&nbsp;occurs&nbsp;when&nbsp;the&nbsp;cosine&nbsp;of<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;angle&nbsp;between&nbsp;fvec&nbsp;and&nbsp;any&nbsp;column&nbsp;of&nbsp;the&nbsp;jacobian&nbsp;is&nbsp;at&nbsp;most&nbsp;gtol<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in&nbsp;absolute&nbsp;value&nbsp;(and&nbsp;status&nbsp;is&nbsp;accordingly&nbsp;set&nbsp;to&nbsp;4).&nbsp;Therefore,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gtol&nbsp;measures&nbsp;the&nbsp;orthogonality&nbsp;desired&nbsp;between&nbsp;the&nbsp;function&nbsp;vector<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;the&nbsp;columns&nbsp;of&nbsp;the&nbsp;jacobian.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;1e-10<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;iterkw:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;keyword&nbsp;arguments&nbsp;to&nbsp;be&nbsp;passed&nbsp;to&nbsp;iterfunct&nbsp;via&nbsp;the&nbsp;dictionary<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keyword&nbsp;mechanism.&nbsp;&nbsp;This&nbsp;should&nbsp;be&nbsp;a&nbsp;dictionary&nbsp;and&nbsp;is&nbsp;similar&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;operation&nbsp;to&nbsp;FUNCTKW.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;{}&nbsp;&nbsp;No&nbsp;arguments&nbsp;are&nbsp;passed.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;iterfunct:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;name&nbsp;of&nbsp;a&nbsp;function&nbsp;to&nbsp;be&nbsp;called&nbsp;upon&nbsp;each&nbsp;NPRINT&nbsp;iteration&nbsp;of&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MPFIT&nbsp;routine.&nbsp;&nbsp;It&nbsp;should&nbsp;be&nbsp;declared&nbsp;in&nbsp;the&nbsp;following&nbsp;way:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;iterfunct(myfunct,&nbsp;p,&nbsp;iter,&nbsp;fnorm,&nbsp;functkw=None,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parinfo=None,&nbsp;quiet=0,&nbsp;dof=None,&nbsp;[iterkw&nbsp;keywords&nbsp;here])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;perform&nbsp;custom&nbsp;iteration&nbsp;update<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;iterfunct&nbsp;must&nbsp;accept&nbsp;all&nbsp;three&nbsp;keyword&nbsp;parameters&nbsp;(FUNCTKW,&nbsp;PARINFO<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;QUIET).&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;myfunct:&nbsp;&nbsp;The&nbsp;user-supplied&nbsp;function&nbsp;to&nbsp;be&nbsp;minimized,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;current&nbsp;set&nbsp;of&nbsp;model&nbsp;parameters<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;iter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;iteration&nbsp;number<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;functkw:&nbsp;&nbsp;The&nbsp;arguments&nbsp;to&nbsp;be&nbsp;passed&nbsp;to&nbsp;myfunct.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fnorm:&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;chi-squared&nbsp;value.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quiet:&nbsp;&nbsp;&nbsp;&nbsp;Set&nbsp;when&nbsp;no&nbsp;textual&nbsp;output&nbsp;should&nbsp;be&nbsp;printed.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dof:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;number&nbsp;of&nbsp;degrees&nbsp;of&nbsp;freedom,&nbsp;normally&nbsp;the&nbsp;number&nbsp;of&nbsp;points<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;less&nbsp;the&nbsp;number&nbsp;of&nbsp;free&nbsp;parameters.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See&nbsp;below&nbsp;for&nbsp;documentation&nbsp;of&nbsp;parinfo.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In&nbsp;implementation,&nbsp;iterfunct&nbsp;can&nbsp;perform&nbsp;updates&nbsp;to&nbsp;the&nbsp;terminal&nbsp;or<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;graphical&nbsp;user&nbsp;interface,&nbsp;to&nbsp;provide&nbsp;feedback&nbsp;while&nbsp;the&nbsp;fit&nbsp;proceeds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;the&nbsp;fit&nbsp;is&nbsp;to&nbsp;be&nbsp;stopped&nbsp;for&nbsp;any&nbsp;reason,&nbsp;then&nbsp;iterfunct&nbsp;should&nbsp;return&nbsp;a<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;status&nbsp;value&nbsp;between&nbsp;-15&nbsp;and&nbsp;-1.&nbsp;&nbsp;Otherwise&nbsp;it&nbsp;should&nbsp;return&nbsp;None<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(e.g.&nbsp;no&nbsp;return&nbsp;statement)&nbsp;or&nbsp;0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In&nbsp;principle,&nbsp;iterfunct&nbsp;should&nbsp;probably&nbsp;not&nbsp;modify&nbsp;the&nbsp;parameter&nbsp;values,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;because&nbsp;it&nbsp;may&nbsp;interfere&nbsp;with&nbsp;the&nbsp;algorithm's&nbsp;stability.&nbsp;&nbsp;In&nbsp;practice&nbsp;it<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is&nbsp;allowed.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;an&nbsp;internal&nbsp;routine&nbsp;is&nbsp;used&nbsp;to&nbsp;print&nbsp;the&nbsp;parameter&nbsp;values.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set&nbsp;iterfunct=None&nbsp;if&nbsp;there&nbsp;is&nbsp;no&nbsp;user-defined&nbsp;routine&nbsp;and&nbsp;you&nbsp;don't<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;want&nbsp;the&nbsp;internal&nbsp;default&nbsp;routine&nbsp;be&nbsp;called.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;maxiter:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;maximum&nbsp;number&nbsp;of&nbsp;iterations&nbsp;to&nbsp;perform.&nbsp;&nbsp;If&nbsp;the&nbsp;number&nbsp;is&nbsp;exceeded,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;then&nbsp;the&nbsp;status&nbsp;value&nbsp;is&nbsp;set&nbsp;to&nbsp;5&nbsp;and&nbsp;MPFIT&nbsp;returns.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;200&nbsp;iterations<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;nocovar:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set&nbsp;this&nbsp;keyword&nbsp;to&nbsp;prevent&nbsp;the&nbsp;calculation&nbsp;of&nbsp;the&nbsp;covariance&nbsp;matrix<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before&nbsp;returning&nbsp;(see&nbsp;COVAR)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;clear&nbsp;(=0)&nbsp;&nbsp;The&nbsp;covariance&nbsp;matrix&nbsp;is&nbsp;returned<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;nprint:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;frequency&nbsp;with&nbsp;which&nbsp;iterfunct&nbsp;is&nbsp;called.&nbsp;&nbsp;A&nbsp;value&nbsp;of&nbsp;1&nbsp;indicates<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;iterfunct&nbsp;is&nbsp;called&nbsp;with&nbsp;every&nbsp;iteration,&nbsp;while&nbsp;2&nbsp;indicates&nbsp;every<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;other&nbsp;iteration,&nbsp;etc.&nbsp;&nbsp;Note&nbsp;that&nbsp;several&nbsp;Levenberg-Marquardt&nbsp;attempts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;can&nbsp;be&nbsp;made&nbsp;in&nbsp;a&nbsp;single&nbsp;iteration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;value:&nbsp;1<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;parinfo<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Provides&nbsp;a&nbsp;mechanism&nbsp;for&nbsp;more&nbsp;sophisticated&nbsp;constraints&nbsp;to&nbsp;be&nbsp;placed&nbsp;on<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parameter&nbsp;values.&nbsp;&nbsp;When&nbsp;parinfo&nbsp;is&nbsp;not&nbsp;passed,&nbsp;then&nbsp;it&nbsp;is&nbsp;assumed&nbsp;that<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all&nbsp;parameters&nbsp;are&nbsp;free&nbsp;and&nbsp;unconstrained.&nbsp;&nbsp;Values&nbsp;in&nbsp;parinfo&nbsp;are&nbsp;never<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modified&nbsp;during&nbsp;a&nbsp;call&nbsp;to&nbsp;MPFIT.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See&nbsp;description&nbsp;above&nbsp;for&nbsp;the&nbsp;structure&nbsp;of&nbsp;PARINFO.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;value:&nbsp;None&nbsp;&nbsp;All&nbsp;parameters&nbsp;are&nbsp;free&nbsp;and&nbsp;unconstrained.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;quiet:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set&nbsp;this&nbsp;keyword&nbsp;when&nbsp;no&nbsp;textual&nbsp;output&nbsp;should&nbsp;be&nbsp;printed&nbsp;by&nbsp;MPFIT<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;damp:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;scalar&nbsp;number,&nbsp;indicating&nbsp;the&nbsp;cut-off&nbsp;value&nbsp;of&nbsp;residuals&nbsp;where<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"damping"&nbsp;will&nbsp;occur.&nbsp;&nbsp;Residuals&nbsp;with&nbsp;magnitudes&nbsp;greater&nbsp;than&nbsp;this<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number&nbsp;will&nbsp;be&nbsp;replaced&nbsp;by&nbsp;their&nbsp;hyperbolic&nbsp;tangent.&nbsp;&nbsp;This&nbsp;partially<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mitigates&nbsp;the&nbsp;so-called&nbsp;large&nbsp;residual&nbsp;problem&nbsp;inherent&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;least-squares&nbsp;solvers&nbsp;(as&nbsp;for&nbsp;the&nbsp;test&nbsp;problem&nbsp;CURVI,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.maxthis.com/curviex.htm">http://www.maxthis.com/curviex.htm</a>).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;value&nbsp;of&nbsp;0&nbsp;indicates&nbsp;no&nbsp;damping.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;0<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Note:&nbsp;DAMP&nbsp;doesn't&nbsp;work&nbsp;with&nbsp;autoderivative=0<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;xtol:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;nonnegative&nbsp;input&nbsp;variable.&nbsp;Termination&nbsp;occurs&nbsp;when&nbsp;the&nbsp;relative&nbsp;error<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;between&nbsp;two&nbsp;consecutive&nbsp;iterates&nbsp;is&nbsp;at&nbsp;most&nbsp;xtol&nbsp;(and&nbsp;status&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;accordingly&nbsp;set&nbsp;to&nbsp;2&nbsp;or&nbsp;3).&nbsp;&nbsp;Therefore,&nbsp;xtol&nbsp;measures&nbsp;the&nbsp;relative&nbsp;error<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;desired&nbsp;in&nbsp;the&nbsp;approximate&nbsp;solution.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default:&nbsp;1E-10<br>
+&nbsp;<br>
+&nbsp;Outputs:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;Returns&nbsp;an&nbsp;object&nbsp;of&nbsp;type&nbsp;<a href="#mpfit">mpfit</a>.&nbsp;&nbsp;The&nbsp;results&nbsp;are&nbsp;attributes&nbsp;of&nbsp;this&nbsp;class,<br>
+&nbsp;&nbsp;&nbsp;e.g.&nbsp;<a href="#mpfit">mpfit</a>.status,&nbsp;<a href="#mpfit">mpfit</a>.errmsg,&nbsp;<a href="#mpfit">mpfit</a>.params,&nbsp;npfit.niter,&nbsp;<a href="#mpfit">mpfit</a>.covar.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;.status<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An&nbsp;integer&nbsp;status&nbsp;code&nbsp;is&nbsp;returned.&nbsp;&nbsp;All&nbsp;values&nbsp;greater&nbsp;than&nbsp;zero&nbsp;can<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;represent&nbsp;success&nbsp;(however&nbsp;.status&nbsp;==&nbsp;5&nbsp;may&nbsp;indicate&nbsp;failure&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;converge).&nbsp;It&nbsp;can&nbsp;have&nbsp;one&nbsp;of&nbsp;the&nbsp;following&nbsp;values:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-16<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;parameter&nbsp;or&nbsp;function&nbsp;value&nbsp;has&nbsp;become&nbsp;infinite&nbsp;or&nbsp;an&nbsp;undefined<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.&nbsp;&nbsp;This&nbsp;is&nbsp;usually&nbsp;a&nbsp;consequence&nbsp;of&nbsp;numerical&nbsp;overflow&nbsp;in&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user's&nbsp;model&nbsp;function,&nbsp;which&nbsp;must&nbsp;be&nbsp;avoided.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-15&nbsp;to&nbsp;-1&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;These&nbsp;are&nbsp;error&nbsp;codes&nbsp;that&nbsp;either&nbsp;MYFUNCT&nbsp;or&nbsp;iterfunct&nbsp;may&nbsp;return&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;terminate&nbsp;the&nbsp;fitting&nbsp;process.&nbsp;&nbsp;Values&nbsp;from&nbsp;-15&nbsp;to&nbsp;-1&nbsp;are&nbsp;reserved<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;the&nbsp;user&nbsp;functions&nbsp;and&nbsp;will&nbsp;not&nbsp;clash&nbsp;with&nbsp;MPFIT.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;Improper&nbsp;input&nbsp;parameters.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;Both&nbsp;actual&nbsp;and&nbsp;predicted&nbsp;relative&nbsp;reductions&nbsp;in&nbsp;the&nbsp;sum&nbsp;of&nbsp;squares<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;are&nbsp;at&nbsp;most&nbsp;ftol.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;Relative&nbsp;error&nbsp;between&nbsp;two&nbsp;consecutive&nbsp;iterates&nbsp;is&nbsp;at&nbsp;most&nbsp;xtol<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;Conditions&nbsp;for&nbsp;status&nbsp;=&nbsp;1&nbsp;and&nbsp;status&nbsp;=&nbsp;2&nbsp;both&nbsp;hold.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;The&nbsp;cosine&nbsp;of&nbsp;the&nbsp;angle&nbsp;between&nbsp;fvec&nbsp;and&nbsp;any&nbsp;column&nbsp;of&nbsp;the&nbsp;jacobian<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is&nbsp;at&nbsp;most&nbsp;gtol&nbsp;in&nbsp;absolute&nbsp;value.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;The&nbsp;maximum&nbsp;number&nbsp;of&nbsp;iterations&nbsp;has&nbsp;been&nbsp;reached.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;ftol&nbsp;is&nbsp;too&nbsp;small.&nbsp;No&nbsp;further&nbsp;reduction&nbsp;in&nbsp;the&nbsp;sum&nbsp;of&nbsp;squares&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;possible.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;xtol&nbsp;is&nbsp;too&nbsp;small.&nbsp;No&nbsp;further&nbsp;improvement&nbsp;in&nbsp;the&nbsp;approximate&nbsp;solution<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;is&nbsp;possible.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;gtol&nbsp;is&nbsp;too&nbsp;small.&nbsp;fvec&nbsp;is&nbsp;orthogonal&nbsp;to&nbsp;the&nbsp;columns&nbsp;of&nbsp;the&nbsp;jacobian<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;machine&nbsp;precision.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;.fnorm<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;value&nbsp;of&nbsp;the&nbsp;summed&nbsp;squared&nbsp;residuals&nbsp;for&nbsp;the&nbsp;returned&nbsp;parameter<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;values.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;.covar<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;covariance&nbsp;matrix&nbsp;for&nbsp;the&nbsp;set&nbsp;of&nbsp;parameters&nbsp;returned&nbsp;by&nbsp;MPFIT.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;matrix&nbsp;is&nbsp;NxN&nbsp;where&nbsp;N&nbsp;is&nbsp;the&nbsp;number&nbsp;of&nbsp;&nbsp;parameters.&nbsp;&nbsp;The&nbsp;square&nbsp;root<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;of&nbsp;the&nbsp;diagonal&nbsp;elements&nbsp;gives&nbsp;the&nbsp;formal&nbsp;1-sigma&nbsp;statistical&nbsp;errors&nbsp;on<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;parameters&nbsp;if&nbsp;errors&nbsp;were&nbsp;treated&nbsp;"properly"&nbsp;in&nbsp;fcn.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parameter&nbsp;errors&nbsp;are&nbsp;also&nbsp;returned&nbsp;in&nbsp;.perror.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To&nbsp;compute&nbsp;the&nbsp;correlation&nbsp;matrix,&nbsp;pcor,&nbsp;use&nbsp;this&nbsp;example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cov&nbsp;=&nbsp;<a href="#mpfit">mpfit</a>.covar<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pcor&nbsp;=&nbsp;cov&nbsp;*&nbsp;0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;i&nbsp;in&nbsp;range(n):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;j&nbsp;in&nbsp;range(n):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pcor[i,j]&nbsp;=&nbsp;cov[i,j]/Numeric.sqrt(cov[i,i]*cov[j,j])<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;nocovar&nbsp;is&nbsp;set&nbsp;or&nbsp;MPFIT&nbsp;terminated&nbsp;abnormally,&nbsp;then&nbsp;.covar&nbsp;is&nbsp;set&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;scalar&nbsp;with&nbsp;value&nbsp;None.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;.errmsg<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;string&nbsp;error&nbsp;or&nbsp;warning&nbsp;message&nbsp;is&nbsp;returned.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;.nfev<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;number&nbsp;of&nbsp;calls&nbsp;to&nbsp;MYFUNCT&nbsp;performed.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;.niter<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;number&nbsp;of&nbsp;iterations&nbsp;completed.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;.perror<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;formal&nbsp;1-sigma&nbsp;errors&nbsp;in&nbsp;each&nbsp;parameter,&nbsp;computed&nbsp;from&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;covariance&nbsp;matrix.&nbsp;&nbsp;If&nbsp;a&nbsp;parameter&nbsp;is&nbsp;held&nbsp;fixed,&nbsp;or&nbsp;if&nbsp;it&nbsp;touches&nbsp;a<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;boundary,&nbsp;then&nbsp;the&nbsp;error&nbsp;is&nbsp;reported&nbsp;as&nbsp;zero.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;the&nbsp;fit&nbsp;is&nbsp;unweighted&nbsp;(i.e.&nbsp;no&nbsp;errors&nbsp;were&nbsp;given,&nbsp;or&nbsp;the&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;were&nbsp;uniformly&nbsp;set&nbsp;to&nbsp;unity),&nbsp;then&nbsp;.perror&nbsp;will&nbsp;probably&nbsp;not&nbsp;represent<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;true&nbsp;parameter&nbsp;uncertainties.&nbsp;&nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*If*&nbsp;you&nbsp;can&nbsp;assume&nbsp;that&nbsp;the&nbsp;true&nbsp;reduced&nbsp;chi-squared&nbsp;value&nbsp;is&nbsp;unity&nbsp;--<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;meaning&nbsp;that&nbsp;the&nbsp;fit&nbsp;is&nbsp;implicitly&nbsp;assumed&nbsp;to&nbsp;be&nbsp;of&nbsp;good&nbsp;quality&nbsp;--<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;then&nbsp;the&nbsp;estimated&nbsp;parameter&nbsp;uncertainties&nbsp;can&nbsp;be&nbsp;computed&nbsp;by&nbsp;scaling<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.perror&nbsp;by&nbsp;the&nbsp;measured&nbsp;chi-squared&nbsp;value.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dof&nbsp;=&nbsp;len(x)&nbsp;-&nbsp;len(<a href="#mpfit">mpfit</a>.params)&nbsp;#&nbsp;deg&nbsp;of&nbsp;freedom<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;scaled&nbsp;uncertainties<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pcerror&nbsp;=&nbsp;<a href="#mpfit">mpfit</a>.perror&nbsp;*&nbsp;Numeric.sqrt(<a href="#mpfit">mpfit</a>.fnorm&nbsp;/&nbsp;dof)</tt></dd></dl>
+
+<dl><dt><a name="mpfit-calc_covar"><strong>calc_covar</strong></a>(self, rr, ipvt<font color="#909090">=None</font>, tol<font color="#909090">=1e-14</font>)</dt></dl>
+
+<dl><dt><a name="mpfit-call"><strong>call</strong></a>(self, fcn, x, functkw, fjac<font color="#909090">=None</font>)</dt><dd><tt>##&nbsp;Call&nbsp;user&nbsp;function&nbsp;or&nbsp;procedure,&nbsp;with&nbsp;_EXTRA&nbsp;or&nbsp;not,&nbsp;with
+<br>
+##&nbsp;derivatives&nbsp;or&nbsp;not.</tt></dd></dl>
+
+<dl><dt><a name="mpfit-defiter"><strong>defiter</strong></a>(self, fcn, x, iter, fnorm<font color="#909090">=None</font>, functkw<font color="#909090">=None</font>, quiet<font color="#909090">=0</font>, iterstop<font color="#909090">=None</font>, parinfo<font color="#909090">=None</font>, format<font color="#909090">=None</font>, pformat<font color="#909090">='%.10g'</font>, dof<font color="#909090">=1</font>)</dt><dd><tt>##&nbsp;Default&nbsp;procedure&nbsp;to&nbsp;be&nbsp;called&nbsp;every&nbsp;iteration.&nbsp;&nbsp;It&nbsp;simply&nbsp;prints
+<br>
+##&nbsp;the&nbsp;parameter&nbsp;values.</tt></dd></dl>
+
+<dl><dt><a name="mpfit-enorm"><strong>enorm</strong></a>(self, vec)</dt></dl>
+
+<dl><dt><a name="mpfit-fdjac2"><strong>fdjac2</strong></a>(self, fcn, x, fvec, step<font color="#909090">=None</font>, ulimited<font color="#909090">=None</font>, ulimit<font color="#909090">=None</font>, dside<font color="#909090">=None</font>, epsfcn<font color="#909090">=None</font>, autoderivative<font color="#909090">=1</font>, functkw<font color="#909090">=None</font>, xall<font color="#909090">=None</font>, ifree<font color="#909090">=None</font>, dstep<font color="#909090">=None</font>)</dt></dl>
+
+<dl><dt><a name="mpfit-lmpar"><strong>lmpar</strong></a>(self, r, ipvt, diag, qtb, delta, x, sdiag, par<font color="#909090">=None</font>)</dt></dl>
+
+<dl><dt><a name="mpfit-parinfo"><strong>parinfo</strong></a>(self, parinfo<font color="#909090">=None</font>, key<font color="#909090">='a'</font>, default<font color="#909090">=None</font>, n<font color="#909090">=0</font>)</dt><dd><tt>##&nbsp;Procedure&nbsp;to&nbsp;parse&nbsp;the&nbsp;parameter&nbsp;values&nbsp;in&nbsp;PARINFO,&nbsp;which&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;dictionaries</tt></dd></dl>
+
+<dl><dt><a name="mpfit-qrfac"><strong>qrfac</strong></a>(self, a, pivot<font color="#909090">=0</font>)</dt></dl>
+
+<dl><dt><a name="mpfit-qrsolv"><strong>qrsolv</strong></a>(self, r, ipvt, diag, qtb, sdiag)</dt></dl>
+
+<dl><dt><a name="mpfit-tie"><strong>tie</strong></a>(self, p, ptied<font color="#909090">=None</font>)</dt><dd><tt>##&nbsp;Procedure&nbsp;to&nbsp;tie&nbsp;one&nbsp;parameter&nbsp;to&nbsp;another.</tt></dd></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dt></dl>
+
+<dl><dt><strong>__module__</strong> = 'mpfit'</dt><dd><tt>str(object)&nbsp;-&gt;&nbsp;string<br>
+&nbsp;<br>
+Return&nbsp;a&nbsp;nice&nbsp;string&nbsp;representation&nbsp;of&nbsp;the&nbsp;object.<br>
+If&nbsp;the&nbsp;argument&nbsp;is&nbsp;a&nbsp;string,&nbsp;the&nbsp;return&nbsp;value&nbsp;is&nbsp;the&nbsp;same&nbsp;object.</tt></dd></dl>
+
+</td></tr></tbody></table></td></tr></tbody></table>
+<table summary="section" border="0" cellpadding="2" cellspacing="0" width="100%">
+<tbody><tr bgcolor="#55aa55">
+<td colspan="3" valign="bottom">&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><strong>__file__</strong> = './mpfit.pyc'<br>
+<strong>__name__</strong> = 'mpfit'</td></tr></tbody></table>
+</body></html>
