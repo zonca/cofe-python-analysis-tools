@@ -37,6 +37,10 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False,az
     #update, 10/8/13. ran get_cofe_crossing on second sun crossing from 10/04 (after subtracting 
     #template estimate of satellites,important effect). delta offsets: az=2.10,el=0.934
     #these then would be future offsets
+    #update, 11/19/13. Ran mapmaking on lots of days, found an offset in the two daily crossings of the Crab- used ephem
+    #to find the crossings, found that should get a self-consistent solution for both if the azimth is reduced by 4.51 degrees
+    #and the elevation is increased by  2.241 degrees.
+    
     if azel_era==1:
         eloffset=5.026
         azoffset=4.41496+140.0
@@ -44,8 +48,8 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False,az
         eloffset=5.026+0.934
         azoffset=4.41496+140.0+2.1
     if azel_era==3:
-        eloffset=0.934
-        azoffset=2.10
+        eloffset=0.934+2.241
+        azoffset=2.10 -4.51
     
     
     
