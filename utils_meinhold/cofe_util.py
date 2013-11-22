@@ -170,7 +170,7 @@ def spectrogram(indata,sampsperspec=1000):
     n=len(indata)
     nspec=np.int(n/sampsperspec)
     ns=nspec*sampsperspec
-    indata=reshape(indata[:ns],(nspec,sampsperspec))
+    indata=np.reshape(indata[:ns],(nspec,sampsperspec))
     sgram=[]
     for i in range(nspec):
         z=nps(indata[i,:],1.)
