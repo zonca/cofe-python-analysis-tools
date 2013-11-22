@@ -162,6 +162,23 @@ def nonlinmodel(g_0,b,t_in):
     """
     v_out=t_in*(g_0/(1+b*g_0*t_in))
     return vout
+    
+def spectrogram(indata,sampsperspec=1000):
+    """
+    make simple spectrogram, uses nps
+    """
+    n=len(indata)
+    nspec=np.int(n/sampsperspec)
+    ns=nspec*sampsperspec
+    indata=reshape(indata[:ns],(nspec,sampsperspec))
+    sgram=[]
+    for i in range(nspec):
+        z=nps(indata[i,:],1.)
+        zlen=len(z[0])
+        sgram.append(z[1])
+    sgram=np.array(sgram)
+    sgram=np.reshape(sgram.flatten(),(nspec,zlen))
+    return sgram
 
 def phasebin(nbins, az, signal,degrees=True):
     if degrees:
