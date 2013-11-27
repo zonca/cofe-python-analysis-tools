@@ -516,6 +516,15 @@ def linfit(x,y):
     m,b=np.linalg.lstsq(a,y)[0]
     return np.array([b,m])
     
+def get2xphase(indata,template):
+    """
+    function to estimate phase of raw data relative to a template of the 2x signal
+    """
+    peakphase=[]
+    for i in range(shape(indata)[0]):
+        dtt=scipy.signal.correlate(template,indata[i,:],mode='same')
+        peakphase.append(np.argmax(dtt)-128)
+    return peakphase
         
         
     
