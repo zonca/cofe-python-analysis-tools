@@ -6,7 +6,7 @@ import ephem
 import peakanalysis as pk
 import matplotlib.pyplot as plt
 from glob import glob
-from scipy.signal import butter,filtfilt,iirdesign
+from scipy.signal import butter,filtfilt,iirdesign,correlate
 from demod import datparsing
 from matplotlib import pyplot as plt
 from matplotlib import mlab
@@ -521,8 +521,8 @@ def get2xphase(indata,template):
     function to estimate phase of raw data relative to a template of the 2x signal
     """
     peakphase=[]
-    for i in range(shape(indata)[0]):
-        dtt=scipy.signal.correlate(template,indata[i,:],mode='same')
+    for i in range(np.shape(indata)[0]):
+        dtt=correlate(template,indata[i,:],mode='same')
         peakphase.append(np.argmax(dtt)-128)
     return peakphase
         
