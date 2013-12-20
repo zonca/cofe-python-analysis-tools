@@ -55,7 +55,7 @@ telescopes' .dat files."""
 #  Return an array 49 elements wide:
 #    (revolution number + mean TQU of each channel) for each revolution.
 
-def demodulate(data, freq, number_of_phases=8):
+def demodulate(data, freq, number_of_phases=8,phase_offset=0):
     """Demodulates input revdata dataset created by datparsing.create_revdata
 
     Parameters
@@ -67,6 +67,8 @@ def demodulate(data, freq, number_of_phases=8):
     number_of_phases : int, optional
         number of phases to divide the revolution into
         typically 8 to get Q and U
+    phase_offset: phase shift required in addition to stored phase. May be
+        estimated from 2x signal using rephase tool.
 
     Returns
     -------
@@ -79,8 +81,8 @@ def demodulate(data, freq, number_of_phases=8):
     for ch in channels_labels:
         calibdata = data[ch]
         channel_phase = phases.getint('%dGHz' % freq, ch)
-        q_commutator = utils.square_wave(config['SEC_PER_REV'], number_of_phases, phase=channel_phase)
-        u_commutator = utils.square_wave(config['SEC_PER_REV'], number_of_phases, phase=channel_phase, U=True)
+        q_commutator = utils.square_wave(config['SEC_PER_REV'], number_of_phases, phase=channel_phase-phase_offset)
+        u_commutator = utils.square_wave(config['SEC_PER_REV'], number_of_phases, phase=channel_phase-phase_offset, U=True)
         demod_data[ch]['T'] = np.mean(calibdata,axis=1)
         demod_data[ch]['Q'] = np.mean(calibdata*q_commutator,axis=1)
         demod_data[ch]['U'] = np.mean(calibdata*u_commutator,axis=1)
