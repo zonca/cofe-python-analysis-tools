@@ -97,7 +97,7 @@ def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False,az
 
 
 
-def get_demodulated_data_from_list(filelist,freq=10,supply_index=True):
+def get_demodulated_data_from_list(filelist,freq=10,supply_index=True,phase_offset=0):
     filelist.sort() #just in case
     dd=[]
     for f in filelist:
@@ -105,7 +105,7 @@ def get_demodulated_data_from_list(filelist,freq=10,supply_index=True):
         stats=os.stat(f)
         if stats.st_size == 10752000:
             print f
-            d=demod.demodulate_dat(f,freq,supply_index=True)
+            d=demod.demodulate_dat(f,freq,supply_index=True,phase_offset=phase_offset)
             #filename is start of data taking (I think) and we'll just add 1/samprate seconds per rev
             h=np.float64(f[-12:-10])
             m=np.float64(f[-10:-8])
@@ -225,7 +225,7 @@ def psmapcurrent(cdata,chan='ch2',cmode='T',nbins=360):
     pcolormesh(psmap.T)
     return psmap
     
-def getdatanow(yrmoday,fpath='',combined=True):
+def getdatanow(yrmoday,fpath='',combined=True,phase_offset=0):
     """
     function to automatically read all science files and pointing
     files, save for future use, also save last h5 and .dat filenamesc
@@ -238,7 +238,7 @@ def getdatanow(yrmoday,fpath='',combined=True):
     flp=glob(fpath+yrmoday[4:6]+'-'+yrmoday[6:8]+'-'+yrmoday[0:4]+'/*.h5')
     flp.sort()
     pp=get_h5_pointing(flp)
-    dd=get_demodulated_data_from_list(fld)
+    dd=get_demodulated_data_from_list(fld,phase_offset=phase_offset)
     curr_data={'pp':pp,'dd':dd,'lastpfile':flp[-1],'lastdfile':fld[-1],'yrmoday':yrmoday,'fpath':fpath}
     if combined:
         curr_data=combine_cofe_h5_pointing(curr_data['dd'],curr_data['pp'],outfile='combined_data'+yrmoday+'.pkl')
