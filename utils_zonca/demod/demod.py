@@ -88,7 +88,7 @@ def demodulate(data, freq, number_of_phases=8,phase_offset=0):
         demod_data[ch]['U'] = np.mean(calibdata*u_commutator,axis=1)
     return demod_data
 
-def demodulate_dat(filename, freq, supply_index=False):
+def demodulate_dat(filename, freq, supply_index=False,phase_offset=0):
     """Reads, reshapes and demodulate .dat file
 
     Parameters
@@ -103,7 +103,7 @@ def demodulate_dat(filename, freq, supply_index=False):
     demod_data : ndarray
         demodulated data of dtype demod_dtype
     """
-    return demodulate(datparsing.create_revdata(datparsing.open_raw(filename),supply_index=supply_index), freq=freq)
+    return demodulate(datparsing.create_revdata(datparsing.open_raw(filename),supply_index=supply_index), freq=freq,phase_offset=phase_offset)
 
 def write_fits(demod_data, outfilename):
     """Write the demod data dictionary or compound array to a fits file
