@@ -16,6 +16,25 @@ import os
 
 rtd=180/np.pi
 
+def test_int_down(inarray):
+    '''
+    function to test if data set integrates down with increasing number of samples
+    input is 1 dim array, output is a dictionary
+    '''
+    ncuts=np.int(np.fix(np.log2(len(inarray))))
+    #first take max power of 2 subset of input array
+    d=inarray[:2**ncuts]
+    outstds=[]
+    outnpts=[]
+    out={}
+    for i in range(ncuts):
+        d=np.reshape(d,(2**i,2**(ncuts-i)))
+        outstds.append(np.std(np.mean(d,axis=1)))
+        outnpts.append(2**(ncuts-i))
+    out['stdev']=np.array(outstds)
+    out['npoints']=np.array(outnpts)
+    return out
+
 def bcd_to_int(int_1):
     #function to pull out bytes from int_1 and int_2 and reconstruct BCD decimal number
         b_1=[]
