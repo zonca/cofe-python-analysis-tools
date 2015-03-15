@@ -7,11 +7,11 @@ def NRAO_plot():
     for k,v in r.iteritems():
         rk[k] = np.copy(v)
         rk[k][v<0]=v[v<0]+180
-    from pylab import *
-    figure()
-    for dec,pa in rk.iteritems():
-        plot(ha,pa,label=str(dec))
-    grid()
+    #from pylab import *
+    #figure()
+    #for dec,pa in rk.iteritems():
+    #    plot(ha,pa,label=str(dec))
+    #grid()
 
 def compute_parallactic_angle(ha, latitude, declination):
     """Inputs and output in radians"""
