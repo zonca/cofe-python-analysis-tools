@@ -124,7 +124,7 @@ if __name__ == '__main__':
     hits=hp.ma(pix2map(pix, NSIDE))
     hits.mask = hits==0
     #hp.mollzoom(hits.filled(),min=0,max=int(hits.mean()*2), title="Hitmap %dGHz %s NSIDE %d" % (freq,ch, NSIDE))
-    print "open wmap map"
+    print ("open wmap map")
     m = fits.read_map('wmap/wmap_band_iqumap_r9_7yr_K_v4.fits', field=slice(0,2+1), nest=None)
     qu_wmap = [gal2eq(hp.ud_grade(amap, NSIDE, order_in='NESTED', order_out='RING')) for amap in m]
     qu_wmap = [np.append(amap, [0]) for amap in qu_wmap]
