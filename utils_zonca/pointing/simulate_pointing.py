@@ -24,8 +24,9 @@ def conv(i, azimuth, elevation, utc):
 
 START_DATE = datetime.datetime(2012, 8, 1)
 
+HOURS = 1
 rotation_speed = np.radians(-1 * 360/60)
-ut = np.arange(0., 48., 1/(30.*3600.))
+ut = np.arange(0., HOURS, 1./(30.*3600.))
 az = rotation_speed * (ut * 3600.) % (2*np.pi)
 
 ra = []
@@ -46,4 +47,4 @@ pix = hp.ang2pix(NSIDE, np.pi/2-dec, ra, nest=False)
 from mapmaking import pix2map
 hit = hp.ma(pix2map(pix, NSIDE))
 hit.mask = hit == 0
-hp.mollview(np.log10(hit).filled(),min=0,max=3,unit='log10 hits',title='Hitmap 48hrs Alice Springs')
+hp.mollview(np.log10(hit).filled(),min=0,max=3,unit='log10 hits',title='Hitmap {hours}hrs Alice Springs'.format(hours=HOURS))
