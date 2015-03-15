@@ -5,7 +5,6 @@ import numpy as np
 from scipy import constants
 from pointingtools import compute_parallactic_angle, altaz2ha 
 
-import pycfitsio as fits
 import ephem
 
 NSIDE = 128

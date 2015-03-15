@@ -1,9 +1,8 @@
 import numpy as np
 import subprocess
 import matplotlib.pyplot as plt
-import pycfitsio as fits
 import itertools
-import pyfits
+from astropy.io import fits as pyfits
 import healpy as hp
 
 def pix2map(pix, nside, tod=None, dividebyhits=True):
